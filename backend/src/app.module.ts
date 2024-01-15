@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
-import { ConfigModule } from '@nestjs/config'
+import { ConfigModule, ConfigService } from '@nestjs/config'
 import { AuthController } from './auth/auth.controller'
 import { AuthModule } from './auth/auth.module'
 import { ChatModule } from './chat/chat.module'
@@ -15,10 +15,16 @@ import { LoggerMiddleware } from './middlewares/logger.middleware'
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    FirestoreModule.forRoot({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        keyFilename: configService.get<string>('FIRESTORE_KEY_FILENAME'),
+      }),
+      inject: [ConfigService],
+    }),
+    RedisModule,
     AuthModule,
     ChatModule,
-    FirestoreModule,
-    RedisModule,
     UserModule,
   ],
   controllers: [AppController, AuthController],
