@@ -48,5 +48,10 @@ describe('RedisService', () => {
     expect(service.getSubClient().connect).toHaveBeenCalled()
   })
 
-  // 추가적인 테스트 케이스를 여기에 작성합니다.
+  it('should set and get a value', async () => {
+    await service.set('key', 'value')
+    expect(service.getPubClient().set).toHaveBeenCalledWith('key', 'value')
+    await service.get('key')
+    expect(service.getPubClient().get).toHaveBeenCalledWith('key')
+  })
 })
