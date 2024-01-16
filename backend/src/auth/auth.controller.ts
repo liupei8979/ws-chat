@@ -12,7 +12,7 @@ import { AuthService } from './auth.service'
 import { SignUpDto } from './dto/sign-up.dto'
 import { ApiResponse } from '@just-chat/types'
 import { HttpExceptionFilter } from 'src/middlewares/http-exception.filter'
-import { AuthCredentialsDto } from './dto/auth-credentials.dto'
+import { SignInDto } from './dto/\bsign-in.dto'
 
 @UseFilters(HttpExceptionFilter)
 @Controller('auth')
@@ -33,18 +33,14 @@ export class AuthController {
       message: '회원가입에 성공하였습니다.',
     }
 
-    res.status(HttpStatus.CREATED).json(response)
+    res.status(response.statusCode).json(response)
   }
 
   @Post('/signin')
-  async signIn(
-    @Req() req,
-    @Res() res,
-    @Body() authCredentialsDto: AuthCredentialsDto,
-  ) {
-    this.logger.log(`signIn: ${authCredentialsDto.email}`)
+  async signIn(@Req() req, @Res() res, @Body() signInDto: SignInDto) {
+    this.logger.log(`signIn: ${signInDto.email}`)
 
-    const accessToken = await this.authService.signIn(authCredentialsDto)
+    const accessToken = await this.authService.signIn(signInDto)
 
     const response: ApiResponse<{ accessToken: string }> = {
       success: true,
@@ -53,6 +49,6 @@ export class AuthController {
       data: accessToken,
     }
 
-    res.status(HttpStatus.OK).json(response)
+    res.status(response.statusCode).json(response)
   }
 }

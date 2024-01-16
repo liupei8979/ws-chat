@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { UserDocument } from 'src/firestore/document/document.user'
-import { AuthCredentialsDto } from './dto/auth-credentials.dto'
+import { SignInDto } from './dto/\bsign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
 import { createApiError } from 'src/utils/api-error.util'
 
@@ -22,10 +22,8 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signIn(
-    authCredentialsDto: AuthCredentialsDto,
-  ): Promise<{ accessToken: string }> {
-    const { email, password } = authCredentialsDto
+  async signIn(signInDto: SignInDto): Promise<{ accessToken: string }> {
+    const { email, password } = signInDto
 
     const userSnapshot = await this.usersCollection
       .where('email', '==', email)
