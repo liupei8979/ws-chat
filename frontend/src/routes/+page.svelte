@@ -23,7 +23,7 @@
 
 <div class="Container">
 	<div class="MainContainer">
-		<div class="HeaderContainer">
+		<div class="HeaderrContainer">
 			<img src="../../src/asset/img/kakao_logo.png" alt="logo" />
 		</div>
 		<div class="LoginContainer">

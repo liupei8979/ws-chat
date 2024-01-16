@@ -12,9 +12,12 @@
 // };
 
 class AuthService {
+	// Base URL for the API
+	baseUrl = 'http://localhost:3003';
+
 	async login(email: string, password: string): Promise<string> {
 		try {
-			const response = await fetch('/api/user/signin', {
+			const response = await fetch(`${this.baseUrl}/auth/signin`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -29,15 +32,14 @@ class AuthService {
 			const data = await response.json();
 			return data.token;
 		} catch (error) {
-			// Handle or log the error here
 			console.error('Login error:', error);
-			throw error; // Re-throw if you want to propagate the error
+			throw error;
 		}
 	}
 
 	async signup(name: string, email: string, password: string) {
 		try {
-			const response = await fetch('/api/user/signup', {
+			const response = await fetch(`${this.baseUrl}/auth/signup`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
@@ -49,9 +51,8 @@ class AuthService {
 				throw new Error('Signup failed');
 			}
 		} catch (error) {
-			// Handle or log the error here
 			console.error('Signup error:', error);
-			throw error; // Re-throw if you want to propagate the error
+			throw error;
 		}
 	}
 
