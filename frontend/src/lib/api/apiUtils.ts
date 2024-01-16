@@ -1,5 +1,5 @@
-// // apiUtils.ts
-// const BASE_URL = "https://your-api-domain.com";
+// apiUtils.ts
+// const BASE_URL = 'http://localhost:3003';
 
 // async function apiFetch(endpoint: string, options = {}) {
 //   const response = await fetch(`${BASE_URL}${endpoint}`, {

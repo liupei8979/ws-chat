@@ -11,6 +11,12 @@
 	// // 초기 상태를 저장하여 변경 감지에 활용
 	// let initialName: string = profile.name || '';
 	// let initialStatusMessage: string = profile.statusMessage || '';
+
+	function handleKeyPress(event: KeyboardEvent) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			closeMyProfileModal();
+		}
+	}
 </script>
 
 <div class="Wrapper">
@@ -18,7 +24,9 @@
 		<!-- 배경 이미지가 있다면 아래 img 태그에 삽입 -->
 	</div>
 	<div class="profile-container">
-		<i class="fas fa-times" on:click={closeMyProfileModal}></i>
+		<button class="icon-button" on:click={closeMyProfileModal} on:keypress={handleKeyPress}>
+			<i class="fas fa-times" aria-hidden="true"></i>
+		</button>
 		<img
 			src={profile.imgSrc || '../../src/asset/img/base_profile.jpg'}
 			alt={profile.name || '기본 프로필 이미지'}
@@ -30,9 +38,9 @@
 		<p class="ProfileStatusMessage">
 			{profile.statusMessage || '상태 메시지 없음'}
 		</p>
-		<input type="text" placeholder="새 이름" />
+		<!-- <input type="text" placeholder="새 이름" />
 		<input type="text" placeholder="새 상태 메시지" />
-		<button>프로필 수정</button>
+		<button>프로필 수정</button> -->
 	</div>
 </div>
 
@@ -72,15 +80,6 @@
 	.profile-container {
 		margin-top: 300px;
 	}
-	i.fas.fa-times {
-		position: absolute;
-		top: 15px;
-		right: 15px;
-		font-size: 15px;
-		color: #fff;
-		z-index: 100;
-		cursor: pointer;
-	}
 	.ProfileImage {
 		width: 100px;
 		height: 100px;
@@ -98,5 +97,16 @@
 		font-size: 18px;
 		color: #fff;
 		margin-bottom: 30px;
+	}
+	.icon-button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		font-size: 20px;
+		color: #fff;
+		z-index: 100;
 	}
 </style>

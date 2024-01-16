@@ -23,9 +23,11 @@
 		imgSrc: '../../src/asset/img/base_profile.jpg',
 		statusMessage: '상태 메시지'
 	};
+
 	const filteredFriendList = [
 		{ name: '친구1', email: 'friend1@example.com', statusMessage: '친구1 상태 메시지' }
 	];
+
 	// 더미 함수 정의
 	function openFindFriendModal() {
 		isFindFriendModalOpen.set(true);
@@ -94,6 +96,6 @@
 	<MyprofileModal {closeMyProfileModal} {profile} />
 {/if}
 
-{#if $isFriendsProfileModalOpen}
+<!-- {#if $isFriendsProfileModalOpen}
 	<FriendsProfileModal friend={$selectedFriend} onClose={closeFriendsProfileModal} />
-{/if}
+{/if} -->

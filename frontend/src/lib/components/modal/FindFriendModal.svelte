@@ -16,10 +16,22 @@
 			// onSubmit(event)
 		}
 	}
+
+	function handleCloseClick() {
+		onClose();
+	}
+
+	function handleCloseKeyPress(event: KeyboardEvent) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			onClose();
+		}
+	}
 </script>
 
 <div class="Wrapper">
-	<i class="fas fa-times" on:click={onClose}></i>
+	<button class="close-button" on:click={handleCloseClick} on:keypress={handleCloseKeyPress}>
+		<i class="fas fa-times"></i>
+	</button>
 	<h4>친구 추가</h4>
 	<div class="Menu">
 		<span>Email로 추가</span>
@@ -28,7 +40,6 @@
 		<input
 			bind:value={userId}
 			maxLength={MAX_LEN}
-			autoFocus={true}
 			on:change={onIdInputChange}
 			on:keydown={handleEnterKey}
 		/>
@@ -64,10 +75,10 @@
 			& input {
 				outline: none;
 				border: none;
+				width: 250px;
 			}
 			& span {
 				position: fixed;
-				margin-left: 110px;
 			}
 		}
 	}
@@ -82,15 +93,6 @@
 			padding: 10px 0;
 		}
 	}
-	i {
-		position: absolute;
-		top: 15px;
-		right: 15px;
-		font-size: 15px;
-		color: #000;
-		z-index: 100;
-		cursor: pointer;
-	}
 	.error-message {
 		color: #000;
 		text-align: center;
@@ -98,5 +100,16 @@
 		font-size: 20px;
 		font-weight: bold;
 		padding: 10px;
+	}
+	.close-button {
+		background: none;
+		border: none;
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		font-size: 15px;
+		color: #000;
+		z-index: 100;
+		cursor: pointer;
 	}
 </style>

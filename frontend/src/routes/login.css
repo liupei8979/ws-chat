@@ -23,7 +23,7 @@
 }
 .LoginContainer {
 	width: 100%;
-	height: 330px;
+	height: 300px;
 	padding-top: 30px;
 	& input {
 		display: block;

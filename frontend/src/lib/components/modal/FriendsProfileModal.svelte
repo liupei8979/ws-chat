@@ -30,6 +30,12 @@
 		console.log('Selected User:', userEmail);
 		dispatch('userSelected', { receiverId: userEmail }); // Dispatching event with receiverId
 	}
+
+	function handleKeyPress(event: KeyboardEvent, action: Function) {
+		if (event.key === 'Enter' || event.key === ' ') {
+			action();
+		}
+	}
 </script>
 
 <div class="Wrapper">
@@ -37,7 +43,9 @@
 		<!-- 배경 이미지가 있다면 아래 img 태그에 삽입 -->
 	</div>
 	<div class="profile-container">
-		<i class="fas fa-times" on:click={onClose}></i>
+		<button class="icon-button" on:click={onClose} on:keypress={(e) => handleKeyPress(e, onClose)}>
+			<i class="fas fa-times" aria-hidden="true"></i>
+		</button>
 		<img
 			src={'../../src/asset/img/base_profile.jpg'}
 			alt={friend.name || '기본 프로필 이미지'}
@@ -50,10 +58,14 @@
 			{friend.statusMessage || '상태 메시지 없음'}
 		</p>
 	</div>
-	<div class="chat-container" on:click={() => handleUserSelect(friend.email)}>
-		<i class="fas fa-comment"></i>
+	<button
+		class="chat-container"
+		on:click={() => handleUserSelect(friend.email)}
+		on:keypress={(e) => handleKeyPress(e, () => handleUserSelect(friend.email))}
+	>
+		<i class="fas fa-comment" aria-hidden="true"></i>
 		<p>1:1 채팅</p>
-	</div>
+	</button>
 </div>
 
 <style>
@@ -94,10 +106,9 @@
 		margin-top: 225px;
 	}
 	i.fas.fa-times {
-		position: absolute;
-		top: 15px;
+		top: 10px;
 		right: 15px;
-		font-size: 15px;
+		font-size: 20px;
 		color: #fff;
 		z-index: 100;
 		cursor: pointer;
@@ -118,13 +129,6 @@
 	.ProfileStatusMessage {
 		font-size: 18px;
 		color: #fff;
-		margin-bottom: 30px;
-	}
-	.chat-container {
-		border-top: 1px solid rgba(255, 255, 255, 0.5);
-		display: flex;
-		flex-direction: column; /* 세로 방향으로 스택 */
-		align-items: center; /* 가로 축에서 중앙 정렬 */
 	}
 
 	.chat-container i {
@@ -135,6 +139,23 @@
 	}
 
 	.chat-container p {
-		margin: 0; /* 필요에 따라 p 태그의 마진을 제거하거나 조정 */
+		margin: 0;
+	}
+
+	.icon-button,
+	.chat-container {
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-size: 20px;
+		color: #fff;
+	}
+	.icon-button {
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		font-size: 15px;
+		color: #fff;
+		z-index: 100;
 	}
 </style>
