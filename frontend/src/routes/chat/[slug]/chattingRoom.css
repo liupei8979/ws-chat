@@ -1,0 +1,139 @@
+.ChatContainer {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	z-index: 99;
+	width: 100%;
+	height: 100vh;
+	background: #b2c7d9;
+}
+.ChatHeader {
+	width: 100%;
+	background-color: #a9bdce;
+	height: 50px;
+	& span {
+		display: inline-block;
+		font-weight: bold;
+		font-size: 20px;
+		margin-left: 10px;
+		margin-top: 10px;
+	}
+	& button {
+		font-size: 20px;
+		padding: 10px 10px 10px 30px;
+		background-color: #a9bdce;
+		border: none;
+		cursor: pointer;
+		&:hover {
+			color: #dcdcdc;
+		}
+	}
+}
+
+.Chatting {
+	display: flex;
+	flex-direction: column;
+	padding: 16px;
+	overflow-y: auto;
+	height: calc(100vh - 120px);
+}
+
+.Message {
+	display: flex;
+	align-items: center; /* 메시지와 시간을 수직 중앙 정렬 */
+	width: 100%;
+	margin-bottom: 12px;
+	margin-bottom: 40px;
+}
+
+.Message.sent {
+	justify-content: flex-end;
+}
+
+.Message.received {
+	justify-content: flex-start;
+}
+
+.bubble {
+	display: inline-flex;
+	align-items: center;
+	padding: 8px 12px;
+	border-radius: 16px;
+	max-width: 60%;
+	word-wrap: break-word;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+	font-size: 14px;
+	line-height: 20px;
+}
+
+.Message.sent .bubble {
+	background-color: #fee500;
+	margin-right: 8px; /* 말풍선과 시간 사이 간격 */
+	border-bottom-right-radius: 3px;
+}
+
+.Message.received .bubble {
+	background-color: #ffffff;
+	margin-left: 8px; /* 말풍선과 시간 사이 간격 */
+	border-bottom-left-radius: 3px;
+}
+
+.timestamp {
+	font-size: 12px;
+	margin-top: 40px;
+	color: #888;
+	white-space: nowrap; /* 시간이 줄바꿈 되지 않도록 */
+}
+
+.Message.sent .timestamp {
+	order: -1; /* 시간을 말풍선 왼쪽으로 이동 */
+}
+
+.ChattingMessage {
+	position: fixed;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	width: 100%;
+	min-height: 80px;
+	max-height: 200px;
+	overflow: auto;
+	padding: 6px;
+	z-index: 100;
+	background-color: #eeeeee;
+	& form {
+		position: relative;
+		display: flex;
+		width: 100%;
+		height: 100%;
+		& textarea,
+		button {
+			display: inline-block;
+			border: none;
+			outline: none;
+		}
+		& textarea {
+			width: 100%;
+			resize: none;
+			height: 100%;
+			margin: 0;
+			padding: 20px 20px;
+		}
+		& button {
+			width: 80px;
+			height: 72px;
+			margin-right: 15px;
+			background: #ffeb33;
+			font-size: 15px;
+			&.canSubmit {
+				cursor: pointer;
+				pointer-events: all;
+				color: #000;
+			}
+			&.cannotSubmit {
+				pointer-events: none;
+				color: #b4b4b4;
+			}
+		}
+	}
+}
