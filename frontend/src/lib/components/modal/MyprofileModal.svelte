@@ -1,13 +1,9 @@
 <script lang="ts">
+	import type { UserProfile } from '../../../routes/friends/index';
 	export let closeMyProfileModal: () => void;
-	export let profile: {
-		name?: string;
-		statusMessage?: string;
-		imgSrc?: string;
-		friends?: { [key: string]: { name: string; email: string; statusMessage?: string } };
-	} = {};
+	export let userProfile: UserProfile;
 
-	console.log('MyprofileModal 렌더링', { profile });
+	console.log('MyprofileModal 렌더링', { userProfile });
 	// // 초기 상태를 저장하여 변경 감지에 활용
 	// let initialName: string = profile.name || '';
 	// let initialStatusMessage: string = profile.statusMessage || '';
@@ -28,15 +24,15 @@
 			<i class="fas fa-times" aria-hidden="true"></i>
 		</button>
 		<img
-			src={profile.imgSrc || '../../src/asset/img/base_profile.jpg'}
-			alt={profile.name || '기본 프로필 이미지'}
+			src={userProfile.imgSrc || '../../src/asset/img/base_profile.jpg'}
+			alt={userProfile.username || '기본 프로필 이미지'}
 			class="ProfileImage"
 		/>
 		<p class="ProfileName">
-			<b>{profile.name || '이름 없음'}</b>
+			<b>{userProfile.username || '이름 없음'}</b>
 		</p>
 		<p class="ProfileStatusMessage">
-			{profile.statusMessage || '상태 메시지 없음'}
+			{userProfile.statusMessage || '상태 메시지 없음'}
 		</p>
 		<!-- <input type="text" placeholder="새 이름" />
 		<input type="text" placeholder="새 상태 메시지" />

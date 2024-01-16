@@ -2,14 +2,14 @@
 	import { createEventDispatcher, onMount } from 'svelte';
 	export let onClose: () => void;
 	export let friend: {
-		name: string;
+		username: string;
 		email: string;
 		statusMessage?: string;
 	};
 
 	type User = {
 		email: string;
-		name: string;
+		username: string;
 		imgSrc?: string;
 	};
 
@@ -48,11 +48,11 @@
 		</button>
 		<img
 			src={'../../src/asset/img/base_profile.jpg'}
-			alt={friend.name || '기본 프로필 이미지'}
+			alt={friend.username || '기본 프로필 이미지'}
 			class="ProfileImage"
 		/>
 		<p class="ProfileName">
-			<b>{friend.name || '이름 없음'}</b>
+			<b>{friend.username || '이름 없음'}</b>
 		</p>
 		<p class="ProfileStatusMessage">
 			{friend.statusMessage || '상태 메시지 없음'}

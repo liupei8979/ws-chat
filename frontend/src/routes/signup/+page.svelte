@@ -6,14 +6,14 @@
 	let email = '';
 	let password = '';
 	let confirmPassword = '';
-	let name = '';
+	let username = '';
 	let isPasswordMatch = true;
 
 	$: isFormValid =
 		email.length > 0 &&
 		password.length > 0 &&
 		confirmPassword.length > 0 &&
-		name.length > 0 &&
+		username.length > 0 &&
 		isPasswordMatch;
 
 	$: isPasswordMatch = password === confirmPassword;
@@ -23,7 +23,7 @@
 		if (!isFormValid) return; // 유효성 검사
 
 		try {
-			const user = await authService.signup(name, email, password);
+			const user = await authService.signup(username, email, password);
 			// 회원가입 성공 후 처리 로직, 예: 로그인 페이지로 리디렉션
 			goto('/');
 		} catch (error) {
@@ -48,7 +48,7 @@
 					maxLength="30"
 					bind:value={confirmPassword}
 				/>
-				<input type="text" placeholder="이름" maxLength="30" bind:value={name} />
+				<input type="text" placeholder="이름" maxLength="30" bind:value={username} />
 				{#if !isPasswordMatch}
 					<p>비밀번호가 일치하지 않습니다.</p>
 				{/if}

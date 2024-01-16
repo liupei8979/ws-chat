@@ -13,7 +13,7 @@
 			const token = await authService.login(email, password);
 			sessionStorage.setItem('token', token); // 세션 스토리지에 토큰 저장
 			// 로그인 성공 후 처리, 예: 홈페이지로 리디렉션
-			goto('/friends');
+			window.location.href = '/friends';
 		} catch (error) {
 			console.error('Login failed', error);
 			// 로그인 실패 시 처리 로직
