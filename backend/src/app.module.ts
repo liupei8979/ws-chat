@@ -2,7 +2,6 @@ import { MiddlewareConsumer, Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { AuthController } from './auth/auth.controller'
 import { AuthModule } from './auth/auth.module'
 import { ChatModule } from './chat/chat.module'
 import { FirestoreModule } from './firestore/firestore.module'
@@ -27,7 +26,7 @@ import { LoggerMiddleware } from './middlewares/logger.middleware'
     ChatModule,
     UserModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {

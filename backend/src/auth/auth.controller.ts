@@ -6,10 +6,15 @@ import {
   Post,
   Req,
   Res,
+  UseFilters,
 } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { SignUpDto } from './dto/sign-up.dto'
+import { ApiResponse } from '@just-chat/types'
+import { HttpExceptionFilter } from 'src/middlewares/http-exception.filter'
+import { AuthCredentialsDto } from './dto/auth-credentials.dto'
 
+@UseFilters(HttpExceptionFilter)
 @Controller('auth')
 export class AuthController {
   private logger = new Logger('AuthController')
@@ -19,22 +24,36 @@ export class AuthController {
   @Post('/signup')
   async signUp(@Req() req, @Res() res, @Body() signUpDto: SignUpDto) {
     this.logger.log(`creatingUser: ${signUpDto.email}`)
-    const result = await this.authService.signUp(signUpDto)
-    if (result) {
-      res.status(HttpStatus.CREATED).send()
-    } else {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send()
+
+    await this.authService.signUp(signUpDto)
+
+    const response: ApiResponse<string> = {
+      success: true,
+      statusCode: HttpStatus.CREATED,
+      message: '회원가입에 성공하였습니다.',
+      data: null,
     }
+
+    res.status(HttpStatus.CREATED).json(response)
   }
 
   @Post('/signin')
-  async signIn(@Req() req, @Res() res, @Body() signUpDto: SignUpDto) {
-    this.logger.log(`signIn: ${signUpDto.email}`)
-    const result = await this.authService.signIn(signUpDto)
-    if (result) {
-      res.status(HttpStatus.OK).json(result)
-    } else {
-      res.status(HttpStatus.NOT_ACCEPTABLE).send()
+  async signIn(
+    @Req() req,
+    @Res() res,
+    @Body() authCredentialsDto: AuthCredentialsDto,
+  ) {
+    this.logger.log(`signIn: ${authCredentialsDto.email}`)
+
+    const accessToken = await this.authService.signIn(authCredentialsDto)
+
+    const response: ApiResponse<{ accessToken: string }> = {
+      success: true,
+      statusCode: HttpStatus.OK,
+      message: '로그인에 성공하였습니다.',
+      data: accessToken,
     }
+
+    res.status(HttpStatus.OK).json(response)
   }
 }

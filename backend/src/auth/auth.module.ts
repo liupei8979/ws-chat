@@ -15,8 +15,8 @@ import { AuthController } from './auth.controller'
         signOptions: {
           expiresIn: configService.get<string>('JWT_EXPIRATION_TIME'),
         },
-        inject: [ConfigService],
       }),
+      inject: [ConfigService],
     }),
   ],
   controllers: [AuthController],

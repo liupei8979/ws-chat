@@ -13,9 +13,11 @@ export class LoggerMiddleware implements NestMiddleware {
       const { statusCode } = response
       const contentLength = response.get('content-length')
 
-      this.logger.log(
-        `${method} ${originalUrl} ${statusCode} ${contentLength} - ${userAgent} ${ip}`,
-      )
+      // 성공일 때만, 로그를 찍는다.
+      if (statusCode >= 200 && statusCode < 300)
+        this.logger.log(
+          `${method} ${originalUrl} ${statusCode} ${contentLength} - ${userAgent} ${ip}`,
+        )
     })
 
     next()
