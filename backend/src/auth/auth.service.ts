@@ -1,10 +1,16 @@
 import { CollectionReference } from '@google-cloud/firestore'
-import { HttpException, Inject, Injectable, Logger } from '@nestjs/common'
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { UserDocument } from 'src/firestore/document/document.user'
 import { AuthCredentialsDto } from './dto/auth-credentials.dto'
 import { SignUpDto } from './dto/sign-up.dto'
-import { ApiError } from '@just-chat/types'
+import { createApiError } from 'src/utils/api-error.util'
 
 @Injectable()
 export class AuthService {
@@ -27,14 +33,13 @@ export class AuthService {
       .get()
 
     if (userSnapshot.empty) {
-      // should fix Exception.
-      const error: ApiError = {
-        success: false,
-        statusCode: 401,
-        message: '이메일 또는 비밀번호가 일치하지 않습니다.',
-        error: 'Unauthorized',
-      }
-      throw new HttpException(error, error.statusCode)
+      throw new HttpException(
+        createApiError(
+          '이메일 또는 비밀번호가 일치하지 않습니다.',
+          'Unauthorized',
+        ),
+        HttpStatus.UNAUTHORIZED,
+      )
     }
 
     const userDoc = userSnapshot.docs[0]
@@ -55,13 +60,10 @@ export class AuthService {
     const userSnapshot = await docRef.get()
 
     if (userSnapshot.exists) {
-      const error: ApiError = {
-        success: false,
-        statusCode: 409,
-        message: '이미 존재하는 이메일입니다.',
-        error: 'Conflict',
-      }
-      throw new HttpException(error, error.statusCode)
+      throw new HttpException(
+        createApiError('이미 존재하는 이메일입니다.', 'Conflict'),
+        HttpStatus.CONFLICT,
+      )
     }
 
     await docRef.set({

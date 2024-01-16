@@ -31,7 +31,6 @@ export class AuthController {
       success: true,
       statusCode: HttpStatus.CREATED,
       message: '회원가입에 성공하였습니다.',
-      data: null,
     }
 
     res.status(HttpStatus.CREATED).json(response)
