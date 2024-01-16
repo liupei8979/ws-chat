@@ -96,7 +96,7 @@ importers:
         specifier: ^7.8.1
         version: 7.8.1
       socket.io:
-        specifier: ^4.7.4
+        specifier: ^4.7.3
         version: 4.7.4
       swagger-ui-express:
         specifier: ^5.0.0

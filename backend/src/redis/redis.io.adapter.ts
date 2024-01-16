@@ -2,10 +2,14 @@ import { Injectable } from '@nestjs/common'
 import { IoAdapter } from '@nestjs/platform-socket.io'
 import { createAdapter } from '@socket.io/redis-adapter'
 import { RedisService } from './redis.service'
+import { ConfigService } from '@nestjs/config'
 
 @Injectable()
 export class RedisIoAdapter extends IoAdapter {
-  constructor(private redisService: RedisService) {
+  constructor(
+    private redisService: RedisService,
+    private configService: ConfigService,
+  ) {
     super()
   }
 

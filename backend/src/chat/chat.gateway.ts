@@ -1,21 +1,22 @@
-import { Logger, UseGuards } from '@nestjs/common'
+import { Logger, UseFilters, UseGuards } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   WebSocketGateway,
   OnGatewayConnection,
   OnGatewayDisconnect,
   WebSocketServer,
-  OnGatewayInit,
+  SubscribeMessage,
+  ConnectedSocket,
+  MessageBody,
 } from '@nestjs/websockets'
-import { Server, Socket, Namespace } from 'socket.io'
+import { Server, Socket } from 'socket.io'
 import { JwtAuthGuard } from 'src/auth/jwt.guard'
+import { SocketExceptionFilter } from 'src/middlewares/socket.filter'
 
-@WebSocketGateway()
-export class ChatGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
-{
+@UseFilters(SocketExceptionFilter)
+@WebSocketGateway(3030, { namespace: 'chat', cors: { origin: '*' } })
+export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private logger: Logger = new Logger('ChatGateway')
-  private chatNamespace: Namespace
 
   @WebSocketServer()
   private server: Server
@@ -23,38 +24,24 @@ export class ChatGateway
   constructor(private configService: ConfigService) {}
 
   afterInit(server: Server): void {
-    const port = this.configService.get<number>('WEBSOCKET_PORT', 3030)
-    const namespace = this.configService.get<string>(
-      'WEBSOCKET_CHAT_NAMESPACE',
-      'chat',
-    )
-    const corsOrigin = this.configService.get<string>(
-      'WEBSOCKET_CORS_ORIGIN',
-      '*',
-    )
-
-    this.chatNamespace = server.of(namespace)
-
-    server.listen(port, {
-      cors: {
-        origin: corsOrigin,
-        // methods: ['GET', 'POST'],
-        // allowedHeaders: ['my-custom-header'],
-        // credentials: true
-      },
-    })
-
-    this.logger.log(
-      `WebSocket server running on port ${port} with namespace ${namespace}`,
-    )
+    this.logger.log(`${server} Initialized`)
   }
 
-  @UseGuards(JwtAuthGuard)
   async handleConnection(client: Socket): Promise<void> {
     this.logger.log(`Client connected: ${client.id}`)
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
     this.logger.log(`Client disconnected: ${client.id}`)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('test')
+  async handleChatEvent(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    this.logger.log(`Client ${client.id} sent: ${data}`)
+    client.emit('testResponse', data)
   }
 }

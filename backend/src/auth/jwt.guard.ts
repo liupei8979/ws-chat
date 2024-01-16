@@ -7,11 +7,10 @@ import {
   Logger,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { WsException } from '@nestjs/websockets'
 import { Request } from 'express'
+import { SocketException } from 'src/middlewares/socket.exception'
 import { createApiError } from 'src/utils/api-error.util'
 
-// @
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   private logger: Logger = new Logger('JwtAuthGuard')
@@ -73,30 +72,38 @@ export class JwtAuthGuard implements CanActivate {
     context: ExecutionContext,
   ): Promise<boolean> {
     const client = context.switchToWs().getClient()
-    const query = client.handshake.query
-    const token = query.accessToken
+    const query = client.handshake.query.accessToken
+    const token = this.extractTokenFromQuery(query)
 
     if (!token) {
       // 수정해야함.
-      throw new WsException('토큰이 존재하지 않습니다.')
+      throw new SocketException('Unauthorized', '토큰이 존재하지 않습니다.')
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       })
       if (!payload) {
-        throw new WsException('토큰이 유효하지 않습니다.')
+        throw new SocketException('Unauthorized', '토큰이 유효하지 않습니다.')
       }
       const { email } = payload
       client['userId'] = email
     } catch (e) {
-      throw new WsException('토큰이 유효하지 않습니다.')
+      if (e.name) {
+        throw new SocketException('Unauthorized', e.name)
+      }
+      throw new SocketException('Unauthorized', '토큰이 유효하지 않습니다.')
     }
     return true
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization.split(' ')
+    return type === 'Bearer' ? token : undefined
+  }
+
+  private extractTokenFromQuery(query: string): string | undefined {
+    const [type, token] = query.split(' ')
     return type === 'Bearer' ? token : undefined
   }
 }
