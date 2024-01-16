@@ -8,6 +8,13 @@ import { FirestoreModule } from './firestore/firestore.module'
 import { RedisModule } from './redis/redis.module'
 import { UserModule } from './user/user.module'
 import { LoggerMiddleware } from './middlewares/logger.middleware'
+import * as fs from 'fs'
+import * as path from 'path'
+import * as YAML from 'yaml'
+import * as swaggerUi from 'swagger-ui-express'
+
+const YAML_PATH = path.resolve(__dirname, '../api.swagger.yaml')
+const apiDocument = YAML.parse(fs.readFileSync(YAML_PATH, 'utf8'))
 
 @Module({
   imports: [
@@ -32,5 +39,8 @@ import { LoggerMiddleware } from './middlewares/logger.middleware'
 export class AppModule {
   configure(consumer: MiddlewareConsumer): void {
     consumer.apply(LoggerMiddleware).forRoutes('*')
+    consumer
+      .apply(swaggerUi.serve, swaggerUi.setup(apiDocument))
+      .forRoutes('api/docs')
   }
 }
