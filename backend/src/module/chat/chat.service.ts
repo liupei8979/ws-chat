@@ -58,6 +58,19 @@ export class ChatService {
     return roomId
   }
 
+  async leaveRoom(userId: string, roomId: string): Promise<boolean> {
+    const isEmpty = await this.redisService.leaveRoom(userId, roomId)
+    if (isEmpty) {
+      // 채팅방 지우기 전에 하위 메시지 doc 전부 삭제 후 메시지 지우기
+      const messagesRef = this.roomCollection.doc(roomId).collection('messages')
+      const messagesSnapshot = await messagesRef.get()
+      await Promise.all(messagesSnapshot.docs.map((doc) => doc.ref.delete()))
+      await this.roomCollection.doc(roomId).delete()
+    }
+    this.logger.log(`User ${userId} leave room ${roomId}`)
+    return true
+  }
+
   async sendMessage(
     data: InMessageDto,
   ): Promise<{ msgWithSeq: OutMessageDto; userClientList: string[] }> {

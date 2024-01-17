@@ -12,8 +12,7 @@ import { Server, Socket } from 'socket.io'
 import { JwtAuthGuard } from 'src/module/auth/jwt.guard'
 import { SocketExceptionFilter } from 'src/utils/filter/socket.exception.filter'
 import { ChatService } from './chat.service'
-import { RedisService } from 'src/module/redis/redis.service'
-import { WebSocketResponse } from '@just-chat/types'
+import { WebSocketError, WebSocketResponse } from '@just-chat/types'
 import { CreateRoomDto } from './dto/create-room.dto'
 import { InMessageDto } from './dto/in-message.dto'
 import { OutMessageDto } from './dto/out-message.dto'
@@ -30,7 +29,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(
     private chatService: ChatService,
-    private redisService: RedisService,
     private jwtService: JwtService,
   ) {}
 
@@ -38,25 +36,45 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`${server} Initialized`)
   }
 
+  // connection하고 disconnection에서는 필터로 에러를 잡을 수가 없음.
   async handleConnection(client: Socket): Promise<void> {
-    const token = client.handshake.query.accessToken.toString()
-    const userId = await this.extractUserIdFromQueryToken(client, token)
+    try {
+      const token = client.handshake.query.accessToken.toString()
+      const userId = await this.extractUserIdFromQueryToken(client, token)
 
-    await this.chatService.connect(client.id, userId)
-    const initalChatLobbyStatus =
-      await this.chatService.getChatLobbyStatus(userId)
-    const response: WebSocketResponse = {
-      success: true,
-      statusCode: 200,
-      payload: initalChatLobbyStatus,
+      await this.chatService.connect(client.id, userId)
+      const initalChatLobbyStatus =
+        await this.chatService.getChatLobbyStatus(userId)
+      const response: WebSocketResponse = {
+        success: true,
+        statusCode: 200,
+        payload: initalChatLobbyStatus,
+      }
+      client.emit('updateChatLobbyStatus', response)
+    } catch (e) {
+      this.logger.error(e)
+      client.emit('Exception', {
+        success: false,
+        statusCode: 500,
+        error: 'InternalServerError',
+      })
+      client.disconnect()
     }
-    client.emit('updateChatLobbyStatus', response)
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
-    const token = client.handshake.query.accessToken.toString()
-    const userId = await this.extractUserIdFromQueryToken(client, token)
-    await this.chatService.disconnect(client.id, userId)
+    try {
+      const token = client.handshake.query.accessToken.toString()
+      const userId = await this.extractUserIdFromQueryToken(client, token)
+      await this.chatService.disconnect(client.id, userId)
+    } catch (e) {
+      this.logger.error(e)
+      client.emit('Exception', {
+        success: false,
+        statusCode: 500,
+        error: 'InternalServerError',
+      })
+    }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -78,6 +96,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       payload: payload,
     }
     client.emit('createRoomResponse', response)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('leaveRoom')
+  async handleLeaveRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    const { userId, roomId } = data
+    const leaved = await this.chatService.leaveRoom(userId, roomId)
+    if (leaved) {
+      const response: WebSocketResponse = {
+        success: true,
+        statusCode: 200,
+        payload: { userId: userId, roomId: roomId },
+      }
+      client.emit('leaveRoomResponse', response)
+    } else {
+      const response: WebSocketError = {
+        success: false,
+        statusCode: 400,
+        error: 'Bad Request',
+        message: '채팅방을 나갈 수 없습니다.',
+      }
+      client.emit('leaveRoomResponse', response)
+    }
   }
 
   @UseGuards(JwtAuthGuard)
