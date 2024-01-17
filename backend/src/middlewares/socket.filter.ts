@@ -10,12 +10,14 @@ export class SocketExceptionFilter extends BaseWsExceptionFilter {
     const client = host.switchToWs().getClient<Socket>()
     const status = exception.getError()['status'] || 'InternalServerError'
     const message = exception.getError()['message'] || 'Internal Server Error'
+    const statusCode = exception.getError()['statusCode'] || 500
 
     // 클라이언트에 에러 메시지 전송
 
     this.logger.log(`Client-id: ${client.id} - ${status} - ${message}`)
     client.emit('Exception', {
       success: false,
+      statusCode: statusCode,
       error: status,
       message,
     })

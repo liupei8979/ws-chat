@@ -1,3 +1,4 @@
+import { Message } from '@just-chat/types'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { RedisClientType, createClient } from 'redis'
@@ -33,5 +34,165 @@ export class RedisService {
 
   async get(key: string): Promise<string> {
     return await this.pubClient.get(key)
+  }
+
+  async addClientToUser(clientId: string, userId: string): Promise<void> {
+    await this.pubClient.set(`clientToUser:${clientId}`, userId)
+  }
+
+  async removeClientToUser(clientId: string): Promise<void> {
+    await this.pubClient.del(`clientToUser:${clientId}`)
+  }
+
+  async getClientToUser(clientId: string): Promise<string> {
+    return await this.pubClient.get(`clientToUser:${clientId}`)
+  }
+
+  async addUserToClient(userId: string, clientId: string): Promise<void> {
+    await this.pubClient.set(`userToClient:${userId}`, clientId)
+  }
+
+  async removeUserToClient(userId: string): Promise<void> {
+    await this.pubClient.del(`userToClient:${userId}`)
+  }
+
+  async getUserToClient(userId: string): Promise<string> {
+    return await this.pubClient.get(`userToClient:${userId}`)
+  }
+
+  async addRoomToUser(roomId: string, userId: string): Promise<void> {
+    const users = (await this.getRoomToUser(roomId)) || []
+    if (!users.includes(userId)) {
+      users.push(userId)
+      await this.pubClient.set(`roomToUser:${roomId}`, JSON.stringify(users))
+    }
+  }
+
+  async removeRoomToUser(roomId: string, userId: string): Promise<void> {
+    const users = (await this.getRoomToUser(roomId)) || []
+    const index = users.indexOf(userId)
+    if (index !== -1) {
+      users.splice(index, 1)
+    }
+    if (users.length === 0) {
+      // 방에 아무도 없으면 방 삭제
+      await this.pubClient.del(`roomToUser:${roomId}`)
+    } else {
+      // 그렇지 않으면 방에 남은 유저들 저장
+      await this.pubClient.set(`roomToUser:${roomId}`, JSON.stringify(users))
+    }
+  }
+
+  async getRoomToUser(roomId: string): Promise<string[] | null> {
+    const data = await this.pubClient.get(`roomToUser:${roomId}`)
+    return data ? JSON.parse(data) : []
+  }
+
+  async addUserToRoom(userId: string, roomId: string): Promise<void> {
+    const rooms = (await this.getUserToRoom(userId)) || []
+    if (!rooms.includes(roomId)) {
+      rooms.push(roomId)
+      await this.pubClient.set(`userToRoom:${userId}`, JSON.stringify(rooms))
+    }
+  }
+
+  async removeUserToRoom(userId: string, roomId: string): Promise<void> {
+    const rooms = (await this.getUserToRoom(userId)) || []
+    const index = rooms.indexOf(roomId)
+    if (index !== -1) {
+      rooms.splice(index, 1)
+    }
+    if (rooms.length === 0) {
+      // 방이 아무것도 없으면 userToRoom 삭제
+      await this.pubClient.del(`userToRoom:${userId}`)
+    } else {
+      // 그렇지 않으면 userToRoom에 수정된 방 목록 저장
+      await this.pubClient.set(`userToRoom:${userId}`, JSON.stringify(rooms))
+    }
+  }
+
+  async getUserToRoom(userId: string): Promise<string[]> {
+    const data = await this.pubClient.get(`userToRoom:${userId}`)
+    return data ? JSON.parse(data) : []
+  }
+
+  async isExistRoom(
+    userId: string,
+    receiverId: string,
+  ): Promise<string | boolean> {
+    const rooms = (await this.getUserToRoom(userId)) || []
+    // recevierId가 있는 방이 있으면 roomId반환.
+    // 없으면 null 반환.
+
+    for (const roomId of rooms) {
+      const users = await this.getRoomToUser(roomId)
+      if (users.includes(receiverId) && users.includes(userId)) {
+        return roomId
+      }
+      5
+    }
+    return false
+  }
+
+  async setRoomRecentSeq(roomId: string, seq: number): Promise<void> {
+    await this.pubClient.set(`roomRecentSeq:${roomId}`, seq.toString())
+  }
+
+  async removeRoomRecentSeq(roomId: string): Promise<void> {
+    await this.pubClient.del(`roomRecentSeq:${roomId}`)
+  }
+
+  async getRoomRecentSeq(roomId: string): Promise<number> {
+    const data = await this.pubClient.get(`roomRecentSeq:${roomId}`)
+    return data ? parseInt(data) : 0
+  }
+
+  async setUserRecentReadSeq(
+    userId: string,
+    roomId: string,
+    seq: number,
+  ): Promise<void> {
+    await this.pubClient.set(
+      `userRecentReadSeq:${userId}:${roomId}`,
+      seq.toString(),
+    )
+  }
+
+  async removeUserRecentReadSeq(userId: string, roomId: string): Promise<void> {
+    await this.pubClient.del(`userRecentReadSeq:${userId}:${roomId}`)
+  }
+
+  async getUserRecentReadSeq(userId: string, roomId: string): Promise<number> {
+    const data = await this.pubClient.get(
+      `userRecentReadSeq:${userId}:${roomId}`,
+    )
+    return data ? parseInt(data) : 0
+  }
+
+  async setRoomRecentMsg(roomId: string, msg: Message): Promise<void> {
+    await this.pubClient.set(`roomRecentMsg:${roomId}`, JSON.stringify(msg))
+  }
+
+  async removeRoomRecentMsg(roomId: string): Promise<void> {
+    await this.pubClient.del(`roomRecentMsg:${roomId}`)
+  }
+
+  async getRoomRecentMsg(roomId: string): Promise<Message> {
+    const data = await this.pubClient.get(`roomRecentMsg:${roomId}`)
+    return data ? JSON.parse(data) : null
+  }
+
+  async createRoom(
+    userId: string,
+    receiverId: string,
+    roomId: string,
+  ): Promise<void> {
+    await this.addRoomToUser(roomId, userId)
+    await this.addRoomToUser(roomId, receiverId)
+    await this.addUserToRoom(userId, roomId)
+    await this.addUserToRoom(receiverId, roomId)
+    await this.setRoomRecentSeq(roomId, 0)
+    await this.setUserRecentReadSeq(userId, roomId, 0)
+    await this.setUserRecentReadSeq(receiverId, roomId, 0)
   }
 }

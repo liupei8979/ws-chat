@@ -1,5 +1,4 @@
 import { Logger, UseFilters, UseGuards } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import {
   WebSocketGateway,
   OnGatewayConnection,
@@ -12,6 +11,10 @@ import {
 import { Server, Socket } from 'socket.io'
 import { JwtAuthGuard } from 'src/auth/jwt.guard'
 import { SocketExceptionFilter } from 'src/middlewares/socket.filter'
+import { ChatService } from './chat.service'
+import { RedisService } from 'src/redis/redis.service'
+import { WebSocketResponse } from '@just-chat/types'
+import { CreateRoomDto } from './dto/create-room.dto'
 
 @UseFilters(SocketExceptionFilter)
 @WebSocketGateway(3030, { namespace: 'chat', cors: { origin: '*' } })
@@ -21,20 +24,47 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   private server: Server
 
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private chatService: ChatService,
+    private redisService: RedisService,
+  ) {}
 
   afterInit(server: Server): void {
     this.logger.log(`${server} Initialized`)
   }
 
   async handleConnection(client: Socket): Promise<void> {
-    this.logger.log(`Client connected: ${client.id}`)
+    const userId = client.handshake.query.userId.toString()
+    await this.chatService.connect(client.id, userId)
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
-    this.logger.log(`Client disconnected: ${client.id}`)
+    const userId = client.handshake.query.userId.toString()
+    await this.chatService.disconnect(client.id, userId)
   }
 
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('createRoom')
+  async handleCreateRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ): Promise<void> {
+    const { userId, receiverId } = data
+    const roomId = await this.chatService.createRoom(userId, receiverId)
+    const payload: CreateRoomDto = {
+      userId: userId,
+      receiverId: receiverId,
+      roomId: roomId,
+    }
+    const response: WebSocketResponse = {
+      success: true,
+      statusCode: 200,
+      payload: payload,
+    }
+    client.emit('createRoomResponse', response)
+  }
+
+  @UseGuards(JwtAuthGuard)
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('test')
   async handleChatEvent(
@@ -42,6 +72,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: any,
   ): Promise<void> {
     this.logger.log(`Client ${client.id} sent: ${data}`)
+    if ('userId' in client) this.logger.log(`Client userId is ${client.userId}`)
     client.emit('testResponse', data)
   }
 }

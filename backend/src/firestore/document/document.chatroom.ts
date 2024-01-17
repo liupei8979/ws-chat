@@ -1,5 +1,5 @@
-import { Room, Message } from '@just-chat/types'
-import { IsNumber, IsString, ValidateNested } from 'class-validator'
+import { Room } from '@just-chat/types'
+import { IsNumber, IsString } from 'class-validator'
 
 export class RoomDocument implements Room {
   static collectionName = 'chatrooms'
@@ -12,10 +12,6 @@ export class RoomDocument implements Room {
 
   @IsString({ each: true })
   members: string[]
-
-  @ValidateNested({ each: true })
-  // @Type(() => Message)
-  messages: Message[]
 
   @IsNumber()
   recentMsgSeq: number

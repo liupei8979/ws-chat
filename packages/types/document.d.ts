@@ -20,7 +20,7 @@ export interface Room {
   roomId: string
   title: string
   members: string[]
-  messages: Message[]
+  messages?: Message[]
   recentMsgSeq: number
   recentUserRead: { [userId: string]: number }
 }

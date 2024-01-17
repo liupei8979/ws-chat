@@ -77,22 +77,34 @@ export class JwtAuthGuard implements CanActivate {
 
     if (!token) {
       // 수정해야함.
-      throw new SocketException('Unauthorized', '토큰이 존재하지 않습니다.')
+      throw new SocketException(
+        'Unauthorized',
+        '토큰이 존재하지 않습니다.',
+        401,
+      )
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       })
       if (!payload) {
-        throw new SocketException('Unauthorized', '토큰이 유효하지 않습니다.')
+        throw new SocketException(
+          'Unauthorized',
+          '토큰이 유효하지 않습니다.',
+          401,
+        )
       }
       const { email } = payload
       client['userId'] = email
     } catch (e) {
       if (e.name) {
-        throw new SocketException('Unauthorized', e.name)
+        throw new SocketException('Unauthorized', e.name, 401)
       }
-      throw new SocketException('Unauthorized', '토큰이 유효하지 않습니다.')
+      throw new SocketException(
+        'Unauthorized',
+        '토큰이 유효하지 않습니다.',
+        401,
+      )
     }
     return true
   }

@@ -10,7 +10,11 @@ export type SocketExceptionStatus =
   | 'UnknownError'
 
 export class SocketException extends WsException {
-  constructor(status: SocketExceptionStatus, message: string) {
-    super({ status, message })
+  constructor(
+    status: SocketExceptionStatus,
+    message: string,
+    statusCode?: number,
+  ) {
+    super({ status, message, statusCode })
   }
 }
