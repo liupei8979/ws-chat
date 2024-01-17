@@ -5,6 +5,7 @@
 	import { Socket } from 'socket.io-client';
 	import Mainlayout from '$lib/Mainlayout.svelte';
 	import NewChattingModal from '$lib/components/modal/NewChattingModal.svelte';
+	import { chatSession } from '$lib/stores/ChatStore'
 	import type { CreateRoomResponse } from '.';
 	import './chat.css';
 
@@ -60,6 +61,7 @@
 			// 응답 핸들러 정의
 			const createRoomResponseHandler = (response: CreateRoomResponse) => {
 				if (response.success) {
+					chatSession.set({ userId: response.payload.userId, receiverId: response.payload.receiverId, roomId: response.payload.roomId });
 					console.log('Room created successfully:', response.payload.roomId);
 					goto(`/chat/${response.payload.roomId}`);
 				} else {
