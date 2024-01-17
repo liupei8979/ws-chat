@@ -1,8 +1,8 @@
 import { writable } from 'svelte/store';
 
 export const chatSession = writable({
-	userId: null,
-	receiverId: null,
-	roomId: null,
-	messages: []
+	userId: '', // 초기값으로 빈 문자열
+	receiverId: '', // 초기값으로 빈 문자열
+	roomId: '', // 초기값으로 빈 문자열
+	messages: [] // 초기값으로 빈 배열
 });

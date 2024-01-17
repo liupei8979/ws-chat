@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Message } from '@just-chat/types';
 	import './chattingRoom.css';
 	import { onMount } from 'svelte';
 	import io, { Socket } from 'socket.io-client';
@@ -7,14 +8,6 @@
 	import { page } from '$app/stores';
 	import { chatSession } from '$lib/stores/ChatStore';
 	import { v4 } from 'uuid';
-
-	// Define a type for the message structure
-	type Message = {
-		id: string;
-		text: string;
-		timestamp: Date;
-		senderId: string;
-	};
 
 	let socket: Socket | null = null;
 
@@ -25,9 +18,9 @@
 	let userId: string = get(chatSession).userId;
 	let receiverId: string = get(chatSession).receiverId;
 	let messageContent = '';
-	let messages = [];
+	let messages: Message[] = [];
 	let roomId: string = $page.params.slug;
-	$: roomId = $page.params.slug;
+	$: roomId = $page.params.slug;CDATASection
 
 	const currentUserID = 'user123'; // 현재 사용자의 ID
 
@@ -57,26 +50,34 @@
 	});
 
 	function sendMessage() {
-		const msgId = v4();
-		if (socket && messageContent.trim() !== '') {
-			console.log('Sending message:', {
-				msgId,
-				senderId: userId,
-				receiverId: receiverId,
-				roomId,
-				content: messageContent
-			});
+    const msgId = v4();
+    if (socket && messageContent.trim() !== '') {
+        console.log('Sending message:', {
+            msgId,
+            senderId: userId,
+            receiverId: receiverId,
+            roomId,
+            content: messageContent
+        });
 
-			socket.emit('sendMessage', {
-				msgId,
-				senderId: userId,
-				receiverId: receiverId,
-				roomId,
-				content: messageContent
-			});
-			messageContent = ''; // 메시지 전송 후 입력 필드 초기화
-		}
-	}
+        socket.emit('sendMessage', {
+            msgId,
+            senderId: userId,
+            receiverId: receiverId,
+            roomId,
+            content: messageContent
+        });
+
+        // 메시지 전송 후 이벤트 리스너 등록
+        socket.once('receiveMessage', (response) => {
+            if (response.success) {
+                console.log('Received message response:', response.payload);
+            }
+        });
+
+        messageContent = ''; // 메시지 전송 후 입력 필드 초기화
+    }
+}
 	// Use the Message type for the parameter
 	function isSentByCurrentUser(message: Message) {
 		return message.senderId === currentUserID;

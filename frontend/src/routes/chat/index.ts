@@ -1,8 +1,10 @@
 export interface CreateRoomResponse {
 	success: boolean;
 	payload: {
+		userId: string;
+		receiverId: string;
 		roomId: string;
-		// 기타 필요한 필드들...
+		// 여기에 필요한 다른 속성들을 추가할 수 있습니다.
 	};
 	// 에러 메시지나 기타 필드들...
 }
