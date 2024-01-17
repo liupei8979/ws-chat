@@ -39,10 +39,10 @@
 		}
 	});
 
-    function handleUserSelected(event: CustomEvent) {
-        const receiverId = event.detail.receiverId
-        // createOrJoinRoom(receiverId)
-    }
+	function handleUserSelected(event: CustomEvent) {
+		const receiverId = event.detail.receiverId;
+		// createOrJoinRoom(receiverId)
+	}
 
 	$: friendList = userProfile.friends
 		? Object.values(userProfile.friends).sort((a, b) => a.username.localeCompare(b.username))
@@ -97,5 +97,9 @@
 {/if}
 
 {#if $isFriendsProfileModalOpen && $selectedFriend}
-	<FriendsProfileModal friend={$selectedFriend} onClose={closeFriendsProfileModal} on:userSelected={handleUserSelected} />
+	<FriendsProfileModal
+		friend={$selectedFriend}
+		onClose={closeFriendsProfileModal}
+		on:userSelected={handleUserSelected}
+	/>
 {/if}
