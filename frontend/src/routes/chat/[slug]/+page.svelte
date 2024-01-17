@@ -21,7 +21,7 @@
 	let messages: Message[] = [];
 	let roomId: string = $page.params.slug;
 	$: roomId = $page.params.slug;
-	
+
 	const currentUserID = 'user123'; // 현재 사용자의 ID
 
 	// 메시지 더미 데이터 with the defined type
@@ -67,7 +67,6 @@
 				roomId,
 				content: messageContent
 			});
-
 
 			messageContent = ''; // 메시지 전송 후 입력 필드 초기화
 		}
