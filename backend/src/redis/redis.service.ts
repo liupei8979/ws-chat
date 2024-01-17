@@ -1,10 +1,13 @@
-import { Message } from '@just-chat/types'
-import { Injectable } from '@nestjs/common'
+import { ChatLobbyRoomStatus, ChatLobbyStatus, Message } from '@just-chat/types'
+import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { RedisClientType, createClient } from 'redis'
+import { InMessageDto } from 'src/chat/dto/in-message.dto'
+import { OutMessageDto } from 'src/chat/dto/out-message.dto'
 
 @Injectable()
 export class RedisService {
+  private logger: Logger = new Logger('RedisService')
   private pubClient: RedisClientType
   private subClient: RedisClientType
 
@@ -196,21 +199,50 @@ export class RedisService {
     await this.setUserRecentReadSeq(receiverId, roomId, 0)
   }
 
-  async addMessageRoom(msg: Message): Promise<Message | null> {
+  async addMessageRoom(msg: InMessageDto): Promise<OutMessageDto | null> {
     const roomId = msg.roomId
     const roomSeq = await this.getRoomRecentSeq(roomId)
     const roomRecentMsg = await this.getRoomRecentMsg(roomId)
     if (roomRecentMsg && roomRecentMsg.msgId === msg.msgId) {
       return null
     } else {
-      const newSeq = roomSeq + 1
-      msg.msgSeq = newSeq
-      const timestmap = Date.now()
-      msg.timestamp = timestmap
-      await this.setRoomRecentSeq(roomId, newSeq)
-      await this.setRoomRecentMsg(roomId, msg)
-      await this.setUserRecentReadSeq(msg.senderId, roomId, newSeq)
-      return msg
+      const newMsg: OutMessageDto = {
+        msgId: msg.msgId,
+        msgSeq: roomSeq + 1,
+        senderId: msg.senderId,
+        receiverId: msg.receiverId,
+        roomId: msg.roomId,
+        content: msg.content,
+        timestamp: Date.now(),
+      }
+      await this.setRoomRecentSeq(roomId, newMsg.msgSeq)
+      await this.setRoomRecentMsg(roomId, newMsg)
+      await this.setUserRecentReadSeq(newMsg.senderId, roomId, newMsg.msgSeq)
+      return newMsg
+    }
+  }
+
+  async getChatLobbyStatus(userId: string): Promise<ChatLobbyStatus> {
+    const rooms = await this.getUserToRoom(userId)
+    let totalUnread = 0
+    const roomStatus: ChatLobbyRoomStatus[] = await Promise.all(
+      rooms.map(async (roomId) => {
+        const roomRecentMsg = await this.getRoomRecentMsg(roomId)
+        const userSeq = await this.getUserRecentReadSeq(userId, roomId)
+        const userUnread = roomRecentMsg.msgSeq - userSeq
+        this.logger.log(roomRecentMsg.msgSeq, userSeq, userUnread)
+        totalUnread += userUnread
+        return {
+          roomId: roomId,
+          userUnread: userUnread,
+          recentMsg: roomRecentMsg,
+        }
+      }),
+    )
+    return {
+      userId: userId,
+      totalUnread: totalUnread,
+      rooms: roomStatus,
     }
   }
 }
