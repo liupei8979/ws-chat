@@ -22,6 +22,7 @@ export class SocketExceptionFilter extends BaseWsExceptionFilter {
       message,
     })
 
-    client.disconnect()
+    // 아 무조건 종료해도 안되는구나.
+    // client.disconnect()
   }
 }
