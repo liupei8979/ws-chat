@@ -1,9 +1,20 @@
 <script lang="ts">
-	import './chat.css';
+	import { onMount, beforeUpdate } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { socketStore } from '$lib/stores/socketStore';
+	import { Socket } from 'socket.io-client';
 	import Mainlayout from '$lib/Mainlayout.svelte';
 	import NewChattingModal from '$lib/components/modal/NewChattingModal.svelte';
+	import type { CreateRoomResponse } from '.';
+	import './chat.css';
 
+	let socket: Socket | null = null;
 	let isChattingWindowOpen = false;
+
+	socketStore.subscribe((value) => {
+		socket = value;
+	});
+	let userId: string;
 	// 더미 데이터 정의
 	const chatRooms = [
 		{
@@ -22,14 +33,46 @@
 		}
 	];
 
+	beforeUpdate(() => {
+		const userProfileString = sessionStorage.getItem('userProfile');
+
+		if (userProfileString) {
+			userId = JSON.parse(userProfileString).email;
+		}
+	});
+
 	function openChattingWindow() {
 		isChattingWindowOpen = true;
 	}
 
 	function handleConfirmUser(event: CustomEvent) {
 		const receiverId: string = event.detail.userId;
-		// createOrJoinRoom(receiverId)
+		createOrJoinRoom(receiverId);
 		isChattingWindowOpen = false;
+	}
+	function createOrJoinRoom(receiverId: string) {
+		if (socket && userId && receiverId) {
+			console.log('Calling socket.emit with:', { userId, receiverId });
+
+			// 서버에 방 생성 요청
+			socket.emit('createRoom', { userId, receiverId });
+
+			// 응답 핸들러 정의
+			const createRoomResponseHandler = (response: CreateRoomResponse) => {
+				if (response.success) {
+					console.log('Room created successfully:', response.payload.roomId);
+					goto(`/chat/${response.payload.roomId}`);
+				} else {
+					console.error('Failed to create room:', response);
+					// 실패 처리 로직을 여기에 구현합니다.
+				}
+			};
+
+			// 이벤트 리스너 등록
+			socket.once('createRoomResponse', createRoomResponseHandler);
+		} else {
+			console.error('Socket, User ID, or Receiver ID is missing');
+		}
 	}
 
 	function handleCloseChattingWindow() {
@@ -62,7 +105,6 @@
 						<span class="unread-messages">{chatRoom.unreadMessages}</span>
 					{/if}
 				</p>
-
 				<p class="preview">
 					{chatRoom.preview}
 				</p>

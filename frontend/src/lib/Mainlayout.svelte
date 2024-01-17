@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount, beforeUpdate } from 'svelte';
+	import { onMount, beforeUpdate, setContext } from 'svelte';
+	import { socketStore } from '$lib/stores/socketStore';
 	import io, { Socket } from 'socket.io-client';
 	import type { UserChatInitial } from '../../../packages/types/ws-response';
 
@@ -61,7 +62,7 @@
 					}
 				});
 				console.log(socket);
-
+				socketStore.set(socket);
 				socket.on('connect', () => {
 					console.log('Connected to the chat server', socket.id);
 

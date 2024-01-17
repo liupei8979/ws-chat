@@ -1,5 +1,9 @@
 <script lang="ts">
 	import './chattingRoom.css';
+	import { page } from '$app/stores';
+
+	let roomId: string = $page.params.slug;
+	$: roomId = $page.params.slug;
 	// Define a type for the message structure
 	type Message = {
 		id: string;

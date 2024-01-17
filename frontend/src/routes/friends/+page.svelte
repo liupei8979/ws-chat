@@ -1,13 +1,16 @@
 <script lang="ts">
 	import { writable } from 'svelte/store';
 	import { onMount, beforeUpdate } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { socketStore } from '$lib/stores/socketStore';
+	import { Socket } from 'socket.io-client';
 	import { searchQuery } from '../../lib/stores/searchStore';
 	import Mainlayout from '$lib/Mainlayout.svelte';
 	import FindFriendModal from '$lib/components/modal/FindFriendModal.svelte';
 	import FriendsProfileModal from '$lib/components/modal/FriendsProfileModal.svelte';
 	import MyprofileModal from '$lib/components/modal/MyprofileModal.svelte';
 	import { userService } from '$lib/services/UserService';
-	import type { UserProfile, Friend } from '.';
+	import type { UserProfile, Friend, CreateRoomResponse } from '.';
 	import './friends.css';
 	import {
 		isFindFriendModalOpen,
@@ -22,12 +25,25 @@
 		closeFriendsProfileModal
 	} from '$lib/stores/ModalStore';
 
+	let socket: Socket | null = null;
+
+	socketStore.subscribe((value) => {
+		socket = value;
+	});
+	let userId: string;
 	let userProfile: UserProfile = {
 		email: '',
 		statusMessage: '',
 		username: '',
 		friends: []
 	};
+	beforeUpdate(() => {
+		const userProfileString = sessionStorage.getItem('userProfile');
+
+		if (userProfileString) {
+			userId = JSON.parse(userProfileString).email;
+		}
+	});
 
 	onMount(async () => {
 		try {
@@ -39,11 +55,47 @@
 		}
 	});
 
-	function handleUserSelected(event: CustomEvent) {
-		const receiverId = event.detail.receiverId;
-		// createOrJoinRoom(receiverId)
+	function createOrJoinRoom(receiverId: string) {
+		if (socket && userId && receiverId) {
+			console.log('Calling socket.emit with:', { userId, receiverId });
+
+			// 서버에 방 생성 요청
+			socket.emit('createRoom', { userId, receiverId });
+
+			// 응답 핸들러 정의
+			const createRoomResponseHandler = (response: CreateRoomResponse) => {
+				if (response.success) {
+					console.log('Room created successfully:', response.payload.roomId);
+					goto(`/chat/${response.payload.roomId}`);
+				} else {
+					console.error('Failed to create room:', response);
+					// 실패 처리 로직을 여기에 구현합니다.
+				}
+			};
+
+			// 이벤트 리스너 등록
+			socket.once('createRoomResponse', createRoomResponseHandler);
+		} else {
+			console.error('Socket, User ID, or Receiver ID is missing');
+		}
 	}
 
+	function handleUserSelected(event: CustomEvent) {
+		const receiverId = event.detail.receiverId;
+		createOrJoinRoom(receiverId);
+	}
+
+	// onMount(() => {
+	//     socket.on('responseCreate', (response) => {
+	//         // 채팅 세션 설정
+	//         if(userId && response.receiverId){
+	//             chatSession.set({ userId: response.userId, receiverId: response.receiverId, roomId: response.roomId });
+	//             console.log(`Room created/joined: ${response.roomId} with ${response.receiverId}`)
+	//             // 채팅방으로 라우팅
+	//             goto(`/main/chatting/${response.roomId}`);
+	//         }
+	//     });
+	// });
 	$: friendList = userProfile.friends
 		? Object.values(userProfile.friends).sort((a, b) => a.username.localeCompare(b.username))
 		: [];
