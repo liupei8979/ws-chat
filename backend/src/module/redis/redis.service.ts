@@ -230,7 +230,6 @@ export class RedisService {
         const roomRecentMsg = await this.getRoomRecentMsg(roomId)
         const userSeq = await this.getUserRecentReadSeq(userId, roomId)
         const userUnread = roomRecentMsg.msgSeq - userSeq
-        this.logger.log(roomRecentMsg.msgSeq, userSeq, userUnread)
         totalUnread += userUnread
         return {
           roomId: roomId,
