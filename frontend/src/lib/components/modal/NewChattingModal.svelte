@@ -1,35 +1,46 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
 
-	interface User {
+	const dispatch = createEventDispatcher();
+
+	type User = {
 		email: string;
-		name: string;
+		username: string;
 		imgSrc?: string;
-	}
+	};
 
-	let users: User[] = [
-		{ email: 'user1@example.com', name: 'User 1', imgSrc: '../../src/asset/img/base_profile.jpg' },
-		{ email: 'user2@example.com', name: 'User 2', imgSrc: '../../src/asset/img/base_profile.jpg' }
-	];
-
+	let users: User[] = [];
 	let selectedUserId: string | null = null;
+
+	onMount(() => {
+		const userProfileString = sessionStorage.getItem('userProfile');
+		if (userProfileString) {
+			const userProfile = JSON.parse(userProfileString);
+			users = Object.values(userProfile.friends || {}) as User[];
+		}
+	});
 
 	function handleUserSelect(userId: string) {
 		selectedUserId = userId;
+		dispatch('select', { userId: userId });
 	}
 
 	function handleClose() {
 		console.log('Modal closed');
+		dispatch('close');
 	}
 
 	function handleConfirm() {
-		console.log('Confirm with selected user:', selectedUserId);
+		if (selectedUserId) {
+			console.log('Confirmed with user:', selectedUserId);
+			dispatch('confirm', { userId: selectedUserId });
+		}
 	}
 </script>
 
 <div class="Wrapper">
 	<div class="HeaderWrapper">
-		<h4>새로운 채팅</h4>
+		<h4>대화 상대 선택</h4>
 	</div>
 	<div class="ContentWrapper">
 		{#each users as user (user.email)}
@@ -37,8 +48,8 @@
 				class="UserItem {selectedUserId === user.email ? 'selected' : ''}"
 				on:click={() => handleUserSelect(user.email)}
 			>
-				<img src={user.imgSrc || '/base_profile.jpg'} alt={user.name} />
-				<span class="UserName">{user.name}</span>
+				<img src={user.imgSrc || '../../src/asset/img/base_profile.jpg'} alt={user.username} />
+				<span class="UserName">{user.username}</span>
 			</button>
 		{/each}
 	</div>

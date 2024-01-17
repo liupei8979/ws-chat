@@ -1,20 +1,58 @@
 <script lang="ts">
+	import type { UserProfile } from '../../../routes/friends/index';
+	import { userService } from '$lib/services/UserService';
 	export let closeMyProfileModal: () => void;
-	export let profile: {
-		name?: string;
-		statusMessage?: string;
-		imgSrc?: string;
-		friends?: { [key: string]: { name: string; email: string; statusMessage?: string } };
-	} = {};
+	export let userProfile: UserProfile;
 
-	console.log('MyprofileModal 렌더링', { profile });
-	// // 초기 상태를 저장하여 변경 감지에 활용
-	// let initialName: string = profile.name || '';
-	// let initialStatusMessage: string = profile.statusMessage || '';
+	let newUsername = '';
+	let newStatusMessage = '';
+	let editingUsername = false;
+	let editingStatusMessage = false;
+
+	async function updateProfile() {
+		const updatedUsername = newUsername || userProfile.username;
+		const updatedStatusMessage = newStatusMessage || userProfile.statusMessage;
+
+		try {
+			await userService.updateProfile(updatedUsername, updatedStatusMessage);
+			window.location.href = '/friends';
+			closeMyProfileModal();
+		} catch (error) {
+			console.error('Profile update failed:', error);
+		}
+	}
 
 	function handleKeyPress(event: KeyboardEvent) {
 		if (event.key === 'Enter' || event.key === ' ') {
 			closeMyProfileModal();
+		}
+	}
+
+	function handleEnterPress(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			updateProfile();
+		}
+	}
+
+	function enableEditUsername() {
+		editingUsername = true;
+		newUsername = userProfile.username;
+	}
+
+	function enableEditStatusMessage() {
+		editingStatusMessage = true;
+		newStatusMessage = userProfile.statusMessage;
+	}
+
+	function handleKeyPressOnUsername(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			enableEditUsername();
+		}
+	}
+
+	function handleKeyPressOnStatusMessage(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			enableEditStatusMessage();
 		}
 	}
 </script>
@@ -28,19 +66,34 @@
 			<i class="fas fa-times" aria-hidden="true"></i>
 		</button>
 		<img
-			src={profile.imgSrc || '../../src/asset/img/base_profile.jpg'}
-			alt={profile.name || '기본 프로필 이미지'}
+			src={userProfile.imgSrc || '../../src/asset/img/base_profile.jpg'}
+			alt={userProfile.username || '기본 프로필 이미지'}
 			class="ProfileImage"
 		/>
 		<p class="ProfileName">
-			<b>{profile.name || '이름 없음'}</b>
+			{#if editingUsername}
+				<input type="text" bind:value={newUsername} on:keyup={handleEnterPress} />
+			{:else}
+				<b
+					role="button"
+					on:click={enableEditUsername}
+					on:keypress={handleKeyPressOnUsername}
+					tabindex="0">{userProfile.username || '이름 없음'}</b
+				>
+			{/if}
 		</p>
 		<p class="ProfileStatusMessage">
-			{profile.statusMessage || '상태 메시지 없음'}
+			{#if editingStatusMessage}
+				<input type="text" bind:value={newStatusMessage} on:keyup={handleEnterPress} />
+			{:else}
+				<span
+					role="button"
+					on:click={enableEditStatusMessage}
+					on:keypress={handleKeyPressOnStatusMessage}
+					tabindex="0">{userProfile.statusMessage || '상태 메시지 없음'}</span
+				>
+			{/if}
 		</p>
-		<!-- <input type="text" placeholder="새 이름" />
-		<input type="text" placeholder="새 상태 메시지" />
-		<button>프로필 수정</button> -->
 	</div>
 </div>
 
@@ -108,5 +161,12 @@
 		font-size: 20px;
 		color: #fff;
 		z-index: 100;
+	}
+	input[type='text'] {
+		width: 70%; /* 너비 조정 */
+		padding: 2px;
+		margin: 10px 0; /* 상하 여백 */
+		border: 1px solid #ddd;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
 	}
 </style>

@@ -1,10 +1,41 @@
 <script lang="ts">
 	export let onClose: () => void;
-	const redirectUrl = '/main/friends'; // 리디렉트할 URL
+	const redirectUrl = '/friends'; // 리디렉트할 URL
 
 	let userId = '';
 	let errorMessage = ''; // 실패 메시지를 위한 상태
 	const MAX_LEN = 30;
+
+	async function onSubmit(event: Event) {
+		event.preventDefault();
+		errorMessage = ''; // 초기화
+		const accessToken = sessionStorage.getItem('token');
+		if (accessToken && userId) {
+			try {
+				const response = await fetch('http://localhost:3003/user/friend', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${accessToken}`
+					},
+					body: JSON.stringify({ email: userId })
+				});
+
+				if (response.ok) {
+					window.location.href = redirectUrl; // 성공 시 리디렉트
+					onClose(); // 성공 시 창 닫기
+				} else {
+					const data = await response.json();
+					errorMessage = data.message || '친구 추가 실패'; // 실패 메시지 설정
+				}
+			} catch (error) {
+				console.error('친구 추가 중 오류 발생:', error);
+				errorMessage = '오류가 발생했습니다. 다시 시도해주세요.'; // 오류 메시지 설정
+			}
+		} else {
+			errorMessage = '유효한 이메일을 입력해주세요.'; // 입력 오류 메시지 설정
+		}
+	}
 
 	function onIdInputChange(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -13,23 +44,17 @@
 
 	function handleEnterKey(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
-			// onSubmit(event)
+			onSubmit(event);
 		}
 	}
 
 	function handleCloseClick() {
 		onClose();
 	}
-
-	function handleCloseKeyPress(event: KeyboardEvent) {
-		if (event.key === 'Enter' || event.key === ' ') {
-			onClose();
-		}
-	}
 </script>
 
 <div class="Wrapper">
-	<button class="close-button" on:click={handleCloseClick} on:keypress={handleCloseKeyPress}>
+	<button class="close-button" on:click={handleCloseClick}>
 		<i class="fas fa-times"></i>
 	</button>
 	<h4>친구 추가</h4>
