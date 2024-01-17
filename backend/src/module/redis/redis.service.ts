@@ -2,8 +2,8 @@ import { ChatLobbyRoomStatus, ChatLobbyStatus, Message } from '@just-chat/types'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { RedisClientType, createClient } from 'redis'
-import { InMessageDto } from 'src/chat/dto/in-message.dto'
-import { OutMessageDto } from 'src/chat/dto/out-message.dto'
+import { InMessageDto } from 'src/module/chat/dto/in-message.dto'
+import { OutMessageDto } from 'src/module/chat/dto/out-message.dto'
 
 @Injectable()
 export class RedisService {

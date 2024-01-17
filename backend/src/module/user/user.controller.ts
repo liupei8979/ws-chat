@@ -11,10 +11,10 @@ import {
   UseFilters,
   UseGuards,
 } from '@nestjs/common'
-import { HttpExceptionFilter } from 'src/middlewares/http-exception.filter'
+import { HttpExceptionFilter } from 'src/utils/filter/http.exception.filter'
 import { UserService } from './user.service'
 import { ApiResponse } from '@just-chat/types'
-import { JwtAuthGuard } from 'src/auth/jwt.guard'
+import { JwtAuthGuard } from 'src/module/auth/jwt.guard'
 import { UserMainDto } from './dto/user-main.dto'
 import { AddFriendDto } from './dto/add-friend.dto'
 import { EditProfileDto } from './dto/edit-profile.dto'

@@ -1,5 +1,5 @@
-import { RoomDocument } from './document/document.chatroom'
-import { UserDocument } from './document/document.user'
+import { RoomDocument } from '../../common/document/document.chatroom'
+import { UserDocument } from '../../common/document/document.user'
 
 export const FirestoreDatabaseProvider = 'firestoredb'
 export const FirestoreOptionsProvider = 'firestoreOptions'

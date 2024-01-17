@@ -6,7 +6,7 @@ import {
   Logger,
 } from '@nestjs/common'
 import { UserMainDto } from './dto/user-main.dto'
-import { UserDocument } from 'src/firestore/document/document.user'
+import { UserDocument } from 'src/common/document/document.user'
 import { CollectionReference } from '@google-cloud/firestore'
 import { createApiError } from 'src/utils/api-error.util'
 import { EditProfileDto } from './dto/edit-profile.dto'

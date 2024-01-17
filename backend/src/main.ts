@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core'
 import { AppModule } from './app.module'
-import { RedisIoAdapter } from './redis/redis.io.adapter'
-import { RedisService } from './redis/redis.service'
+import { RedisIoAdapter } from './module/redis/redis.io.adapter'
+import { RedisService } from './module/redis/redis.service'
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
