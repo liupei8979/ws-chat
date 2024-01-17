@@ -3,7 +3,6 @@
 	import { socketStore } from '$lib/stores/socketStore';
 	import io, { Socket } from 'socket.io-client';
 
-
 	let pathname = '';
 	let socket: Socket;
 
@@ -55,13 +54,11 @@
 			const userProfileString = sessionStorage.getItem('userProfile');
 			if (userProfileString) {
 				const userProfile = JSON.parse(userProfileString);
-			
 
 				socket = io('http://localhost:3030/chat', {
 					transports: ['websocket'],
 					query: {
-						accessToken: `Bearer ${accessToken}`,
-				
+						accessToken: `Bearer ${accessToken}`
 					}
 				});
 				console.log(socket);
