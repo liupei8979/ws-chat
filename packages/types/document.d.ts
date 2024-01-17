@@ -13,7 +13,7 @@ export interface Message {
   receiverId: string
   roomId: string
   content: string
-  timestamp: number // UNIX timestamp
+  timestamp?: number // UNIX timestamp
 }
 
 export interface Room {

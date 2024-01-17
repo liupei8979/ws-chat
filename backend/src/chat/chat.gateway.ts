@@ -13,7 +13,7 @@ import { JwtAuthGuard } from 'src/auth/jwt.guard'
 import { SocketExceptionFilter } from 'src/middlewares/socket.filter'
 import { ChatService } from './chat.service'
 import { RedisService } from 'src/redis/redis.service'
-import { WebSocketResponse } from '@just-chat/types'
+import { Message, WebSocketResponse } from '@just-chat/types'
 import { CreateRoomDto } from './dto/create-room.dto'
 
 @UseFilters(SocketExceptionFilter)
@@ -58,13 +58,33 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     const response: WebSocketResponse = {
       success: true,
-      statusCode: 200,
+      statusCode: 201,
       payload: payload,
     }
     client.emit('createRoomResponse', response)
   }
 
   @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('sendMessage')
+  async handleSendMessage(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: Message,
+  ): Promise<void> {
+    const { msgWithSeq, userClientList } =
+      await this.chatService.sendMessage(data)
+
+    const payload: Message = msgWithSeq
+    const response: WebSocketResponse = {
+      success: true,
+      statusCode: 201,
+      payload: payload,
+    }
+
+    userClientList.forEach((clientId) => {
+      this.server.to(clientId).emit('receiveMessage', response)
+    })
+  }
+
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('test')
   async handleChatEvent(

@@ -195,4 +195,22 @@ export class RedisService {
     await this.setUserRecentReadSeq(userId, roomId, 0)
     await this.setUserRecentReadSeq(receiverId, roomId, 0)
   }
+
+  async addMessageRoom(msg: Message): Promise<Message | null> {
+    const roomId = msg.roomId
+    const roomSeq = await this.getRoomRecentSeq(roomId)
+    const roomRecentMsg = await this.getRoomRecentMsg(roomId)
+    if (roomRecentMsg && roomRecentMsg.msgId === msg.msgId) {
+      return null
+    } else {
+      const newSeq = roomSeq + 1
+      msg.msgSeq = newSeq
+      const timestmap = Date.now()
+      msg.timestamp = timestmap
+      await this.setRoomRecentSeq(roomId, newSeq)
+      await this.setRoomRecentMsg(roomId, msg)
+      await this.setUserRecentReadSeq(msg.senderId, roomId, newSeq)
+      return msg
+    }
+  }
 }
