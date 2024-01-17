@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Message } from '@just-chat/types';
+	import type { Message } from '@just-chat/types';
 	import './chattingRoom.css';
 	import { onMount } from 'svelte';
 	import io, { Socket } from 'socket.io-client';
@@ -21,8 +21,7 @@
 	let messages: Message[] = [];
 	let roomId: string = $page.params.slug;
 	$: roomId = $page.params.slug;
-	CDATASection;
-
+	
 	const currentUserID = 'user123'; // 현재 사용자의 ID
 
 	// 메시지 더미 데이터 with the defined type
@@ -69,12 +68,6 @@
 				content: messageContent
 			});
 
-			// 메시지 전송 후 이벤트 리스너 등록
-			socket.once('receiveMessage', (response) => {
-				if (response.success) {
-					console.log('Received message response:', response.payload);
-				}
-			});
 
 			messageContent = ''; // 메시지 전송 후 입력 필드 초기화
 		}
