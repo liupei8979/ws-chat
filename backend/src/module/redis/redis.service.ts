@@ -2,8 +2,8 @@ import { ChatLobbyRoomStatus, ChatLobbyStatus, Message } from '@just-chat/types'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { RedisClientType, createClient } from 'redis'
-import { InMessageDto } from 'src/chat/dto/in-message.dto'
-import { OutMessageDto } from 'src/chat/dto/out-message.dto'
+import { InMessageDto } from 'src/module/chat/dto/in-message.dto'
+import { OutMessageDto } from 'src/module/chat/dto/out-message.dto'
 
 @Injectable()
 export class RedisService {
@@ -230,7 +230,6 @@ export class RedisService {
         const roomRecentMsg = await this.getRoomRecentMsg(roomId)
         const userSeq = await this.getUserRecentReadSeq(userId, roomId)
         const userUnread = roomRecentMsg.msgSeq - userSeq
-        this.logger.log(roomRecentMsg.msgSeq, userSeq, userUnread)
         totalUnread += userUnread
         return {
           roomId: roomId,

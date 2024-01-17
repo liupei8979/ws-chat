@@ -2,16 +2,17 @@ import { MiddlewareConsumer, Module } from '@nestjs/common'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { AuthModule } from './auth/auth.module'
-import { ChatModule } from './chat/chat.module'
-import { FirestoreModule } from './firestore/firestore.module'
-import { RedisModule } from './redis/redis.module'
-import { UserModule } from './user/user.module'
-import { LoggerMiddleware } from './middlewares/logger.middleware'
+import { AuthModule } from './module/auth/auth.module'
+import { ChatModule } from './module/chat/chat.module'
+import { FirestoreModule } from './module/firestore/firestore.module'
+import { RedisModule } from './module/redis/redis.module'
+import { UserModule } from './module/user/user.module'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as YAML from 'yaml'
 import * as swaggerUi from 'swagger-ui-express'
+import { LoggerMiddleware } from './utils/middlewares/logger.middleware'
+import { RoomModule } from './module/room/room.module'
 
 const YAML_PATH = path.resolve(__dirname, '../api.swagger.yaml')
 const apiDocument = YAML.parse(fs.readFileSync(YAML_PATH, 'utf8'))
@@ -32,6 +33,7 @@ const apiDocument = YAML.parse(fs.readFileSync(YAML_PATH, 'utf8'))
     RedisModule,
     ChatModule,
     UserModule,
+    RoomModule,
   ],
   controllers: [AppController],
   providers: [AppService],

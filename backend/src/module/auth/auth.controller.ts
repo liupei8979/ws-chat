@@ -11,7 +11,7 @@ import {
 import { AuthService } from './auth.service'
 import { SignUpDto } from './dto/sign-up.dto'
 import { ApiResponse } from '@just-chat/types'
-import { HttpExceptionFilter } from 'src/middlewares/http-exception.filter'
+import { HttpExceptionFilter } from 'src/utils/filter/http.exception.filter'
 import { SignInDto } from './dto/\bsign-in.dto'
 
 @UseFilters(HttpExceptionFilter)

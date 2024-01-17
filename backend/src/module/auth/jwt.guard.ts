@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
-import { SocketException } from 'src/middlewares/socket.exception'
+import { SocketException } from 'src/common/socket.exception'
 import { createApiError } from 'src/utils/api-error.util'
 
 @Injectable()

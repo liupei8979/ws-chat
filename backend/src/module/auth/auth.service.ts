@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { UserDocument } from 'src/firestore/document/document.user'
+import { UserDocument } from 'src/common/document/document.user'
 import { SignInDto } from './dto/\bsign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
 import { createApiError } from 'src/utils/api-error.util'

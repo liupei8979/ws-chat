@@ -9,10 +9,10 @@ import {
   MessageBody,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { JwtAuthGuard } from 'src/auth/jwt.guard'
-import { SocketExceptionFilter } from 'src/middlewares/socket.filter'
+import { JwtAuthGuard } from 'src/module/auth/jwt.guard'
+import { SocketExceptionFilter } from 'src/utils/filter/socket.exception.filter'
 import { ChatService } from './chat.service'
-import { RedisService } from 'src/redis/redis.service'
+import { RedisService } from 'src/module/redis/redis.service'
 import { WebSocketResponse } from '@just-chat/types'
 import { CreateRoomDto } from './dto/create-room.dto'
 import { InMessageDto } from './dto/in-message.dto'
