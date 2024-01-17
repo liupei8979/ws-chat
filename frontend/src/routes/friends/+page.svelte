@@ -27,11 +27,12 @@
 	} from '$lib/stores/ModalStore';
 
 	let socket: Socket | null = null;
+	let userId: string | null = null;
 
 	socketStore.subscribe((value) => {
 		socket = value;
 	});
-	let userId: string;
+
 	let userProfile: UserProfile = {
 		email: '',
 		statusMessage: '',
@@ -69,7 +70,8 @@
 					chatSession.set({
 						userId: response.payload.userId,
 						receiverId: response.payload.receiverId,
-						roomId: response.payload.roomId
+						roomId: response.payload.roomId,
+						messages: []
 					});
 					console.log(
 						'Room created successfully:',
@@ -96,17 +98,6 @@
 		createOrJoinRoom(receiverId);
 	}
 
-	// onMount(() => {
-	//     socket.on('responseCreate', (response) => {
-	//         // 채팅 세션 설정
-	//         if(userId && response.receiverId){
-	//             chatSession.set({ userId: response.userId, receiverId: response.receiverId, roomId: response.roomId });
-	//             console.log(`Room created/joined: ${response.roomId} with ${response.receiverId}`)
-	//             // 채팅방으로 라우팅
-	//             goto(`/main/chatting/${response.roomId}`);
-	//         }
-	//     });
-	// });
 	$: friendList = userProfile.friends
 		? Object.values(userProfile.friends).sort((a, b) => a.username.localeCompare(b.username))
 		: [];

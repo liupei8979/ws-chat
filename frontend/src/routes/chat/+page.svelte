@@ -6,7 +6,7 @@
 	import Mainlayout from '$lib/Mainlayout.svelte';
 	import NewChattingModal from '$lib/components/modal/NewChattingModal.svelte';
 	import { chatSession } from '$lib/stores/ChatStore';
-	import type { CreateRoomResponse } from '.';
+	import type { CreateRoomResponse } from './index';
 	import './chat.css';
 
 	let socket: Socket | null = null;
@@ -64,7 +64,8 @@
 					chatSession.set({
 						userId: response.payload.userId,
 						receiverId: response.payload.receiverId,
-						roomId: response.payload.roomId
+						roomId: response.payload.roomId,
+						messages: []
 					});
 					console.log('Room created successfully:', response.payload.roomId);
 					goto(`/chat/${response.payload.roomId}`);

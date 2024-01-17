@@ -180,6 +180,9 @@ importers:
 
   frontend:
     dependencies:
+      '@just-chat/types':
+        specifier: workspace:^
+        version: link:../packages/types
       '@types/uuid':
         specifier: ^9.0.7
         version: 9.0.7
