@@ -8,7 +8,7 @@ export interface User {
 
 export interface Message {
   msgId: string
-  msgSeq: number
+  msgSeq?: number
   senderId: string
   receiverId: string
   roomId: string
