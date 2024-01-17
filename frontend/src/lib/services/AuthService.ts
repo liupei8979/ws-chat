@@ -30,21 +30,25 @@ class AuthService {
 			}
 
 			const data = await response.json();
-			return data.token;
+
+			// Extract accessToken from the response
+			const accessToken = data.data.accessToken;
+
+			return accessToken;
 		} catch (error) {
 			console.error('Login error:', error);
 			throw error;
 		}
 	}
 
-	async signup(name: string, email: string, password: string) {
+	async signup(username: string, email: string, password: string) {
 		try {
 			const response = await fetch(`${this.baseUrl}/auth/signup`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
 				},
-				body: JSON.stringify({ name, email, password })
+				body: JSON.stringify({ username, email, password })
 			});
 
 			if (!response.ok) {

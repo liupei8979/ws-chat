@@ -27,6 +27,8 @@
 
 	function confirmLogout() {
 		if (confirm('로그아웃 하시겠습니까?')) {
+			sessionStorage.removeItem('token');
+			sessionStorage.removeItem('userProfile');
 			navigateTo('/');
 		}
 	}
@@ -59,11 +61,15 @@
 					on:keydown={(event) => handleKeydown(event, btn)}
 				>
 					<div class="menuInner">
-						<div style="display:flex; align-items:center;">
+						<div class="iconContainer">
 							{#if pathname === btn.route}
 								<i class={`${btn.activeUrl} activeIcon`}></i>
 							{:else}
 								<i class={`${btn.url} Icon`}></i>
+							{/if}
+							{#if btn.title === 'chatting'}
+								<!-- unreadMessages 는 값을 받아와서 적용시켜야됨 임의로 숫자 넣어둠-->
+								<span class="unreadMessages">3</span>
 							{/if}
 						</div>
 					</div>
@@ -108,5 +114,23 @@
 
 	.Icon {
 		color: #a6a7a8;
+	}
+
+	.iconContainer {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+	.unreadMessages {
+		position: absolute;
+		top: 15px;
+		right: 0;
+		background-color: red;
+		color: white;
+		font-size: 15px;
+		padding: 4px 10px;
+		border-radius: 10px;
+		min-width: 16px;
+		text-align: center;
 	}
 </style>
