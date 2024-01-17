@@ -1,7 +1,10 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	 import { onMount, beforeUpdate } from 'svelte';
+     import io, { Socket } from 'socket.io-client'
+     import type { UserChatInitial } from '../../../packages/types/ws-response'
 
 	let pathname = '';
+    let socket: Socket
 
 	const btns = [
 		{
@@ -42,12 +45,45 @@
 	function navigateTo(route: string) {
 		location.href = route;
 	}
+    beforeUpdate(() => {
+        if (typeof window !== 'undefined' && sessionStorage.getItem('token')) {
+      const accessToken = sessionStorage.getItem('token');
+      const userProfileString = sessionStorage.getItem('userProfile');
+      if (userProfileString) {
+        const userProfile = JSON.parse(userProfileString);
+        const userId = encodeURIComponent(userProfile.email);
 
-	onMount(() => {
-		pathname = window.location.pathname;
-		console.log('Current URL:', pathname);
-	});
+        socket = io('http://localhost:3030/chat', {
+          transports: ['websocket'],
+          query: {
+            accessToken: `Bearer ${accessToken}`,
+            userId: userId
+          },
+        });
+        console.log(socket);
+
+        socket.on('connect', () => {
+        console.log('Connected to the chat server', socket.id);
+
+            // 서버로부터 받은 데이터 처리
+        socket.on('connectResponse', (data: UserChatInitial) => {
+        console.log('User Chat Data:', data);
+            // 여기서 data를 사용하여 UI 업데이트 등의 로직 수행
+  });
+});
+
+
+      }
+    }
+        
+    })
+
+    onMount(() => {
+        pathname = window.location.pathname;
+        console.log('Current URL:', pathname);
+    });
 </script>
+
 
 <body>
 	<div class="Wrapper">
