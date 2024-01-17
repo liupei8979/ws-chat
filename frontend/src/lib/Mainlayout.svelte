@@ -46,7 +46,6 @@
 	function navigateTo(route: string) {
 		location.href = route;
 	}
-	
 
 	onMount(() => {
 		pathname = window.location.pathname;
@@ -66,7 +65,7 @@
 					}
 				});
 				console.log(socket);
-			
+
 				socket.on('connect', () => {
 					console.log('Connected to the chat server', socket.id);
 					socketStore.set(socket);

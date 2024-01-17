@@ -1,13 +1,12 @@
 <script lang="ts">
 	import './chattingRoom.css';
-	import { onMount} from 'svelte';
+	import { onMount } from 'svelte';
 	import io, { Socket } from 'socket.io-client';
 	import { socketStore } from '$lib/stores/socketStore';
 	import { writable, get } from 'svelte/store';
 	import { page } from '$app/stores';
-	import { chatSession } from '$lib/stores/ChatStore'
+	import { chatSession } from '$lib/stores/ChatStore';
 	import { v4 } from 'uuid';
-
 
 	// Define a type for the message structure
 	type Message = {
@@ -23,14 +22,12 @@
 		socket = value;
 	});
 
-
 	let userId: string = get(chatSession).userId;
-    let receiverId: string = get(chatSession).receiverId;
-	let messageContent = ''; 
+	let receiverId: string = get(chatSession).receiverId;
+	let messageContent = '';
 	let messages = [];
 	let roomId: string = $page.params.slug;
 	$: roomId = $page.params.slug;
-
 
 	const currentUserID = 'user123'; // 현재 사용자의 ID
 
@@ -44,41 +41,42 @@
 		},
 		{ id: 'msg2', text: '반가워요!', timestamp: new Date('2024-01-16T09:05'), senderId: 'user456' }
 	];
-	
+
 	onMount(() => {
 		if (socket) {
-			console.log('mounting socket on chatting room:', socket)
-      // 서버로부터 메시지 수신
-      socket.on('receiveMessage', (response) => { // 여기에 로그 추가
-        if (response.success) {
-			console.log('Received message response:', response.payload);
-          messages = [...messages, response.payload];
-        }
-      });
-    }
-  });
+			console.log('mounting socket on chatting room:', socket);
+			// 서버로부터 메시지 수신
+			socket.on('receiveMessage', (response) => {
+				// 여기에 로그 추가
+				if (response.success) {
+					console.log('Received message response:', response.payload);
+					messages = [...messages, response.payload];
+				}
+			});
+		}
+	});
 
-  function sendMessage() {
-    const msgId = v4();
-    if (socket && messageContent.trim() !== '') {
-      console.log('Sending message:', {
-        msgId,
-        senderId: userId,
-        receiverId: receiverId,
-        roomId,
-        content: messageContent
-      });
+	function sendMessage() {
+		const msgId = v4();
+		if (socket && messageContent.trim() !== '') {
+			console.log('Sending message:', {
+				msgId,
+				senderId: userId,
+				receiverId: receiverId,
+				roomId,
+				content: messageContent
+			});
 
-      socket.emit('sendMessage', {
-        msgId,
-        senderId: userId,
-        receiverId: receiverId,
-        roomId,
-        content: messageContent
-      });
-      messageContent = ''; // 메시지 전송 후 입력 필드 초기화
-    }
-  }
+			socket.emit('sendMessage', {
+				msgId,
+				senderId: userId,
+				receiverId: receiverId,
+				roomId,
+				content: messageContent
+			});
+			messageContent = ''; // 메시지 전송 후 입력 필드 초기화
+		}
+	}
 	// Use the Message type for the parameter
 	function isSentByCurrentUser(message: Message) {
 		return message.senderId === currentUserID;
@@ -108,10 +106,7 @@
 <!-- 메시지 입력창 -->
 <div class="ChattingMessage">
 	<form on:submit|preventDefault={sendMessage}>
-		<textarea
-		  placeholder="메시지를 입력하세요..."
-		  bind:value={messageContent} 
-		></textarea>
+		<textarea placeholder="메시지를 입력하세요..." bind:value={messageContent}></textarea>
 		<button type="submit">전송</button>
-	  </form>
+	</form>
 </div>
