@@ -17,13 +17,13 @@
 	let users: User[] = [];
 	let selectedUserId: string = '';
 
-	// onMount(() => {
-	//     const userProfileString = sessionStorage.getItem('userProfile')
-	//     if (userProfileString) {
-	//         const userProfile = JSON.parse(userProfileString)
-	//         users = Object.values(userProfile.friends || {}) as User[]
-	//     }
-	// })
+	onMount(() => {
+		const userProfileString = sessionStorage.getItem('userProfile');
+		if (userProfileString) {
+			const userProfile = JSON.parse(userProfileString);
+			users = Object.values(userProfile.friends || {}) as User[];
+		}
+	});
 
 	function handleUserSelect(userEmail: string) {
 		selectedUserId = userEmail;
