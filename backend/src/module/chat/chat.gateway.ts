@@ -17,6 +17,8 @@ import { WebSocketResponse } from '@just-chat/types'
 import { CreateRoomDto } from './dto/create-room.dto'
 import { InMessageDto } from './dto/in-message.dto'
 import { OutMessageDto } from './dto/out-message.dto'
+import { SocketException } from 'src/common/socket.exception'
+import { JwtService } from '@nestjs/jwt'
 
 @UseFilters(SocketExceptionFilter)
 @WebSocketGateway(3030, { namespace: 'chat', cors: { origin: '*' } })
@@ -29,27 +31,63 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private chatService: ChatService,
     private redisService: RedisService,
+    private jwtService: JwtService,
   ) {}
 
   afterInit(server: Server): void {
     this.logger.log(`${server} Initialized`)
   }
 
+  // handdleConnection, handleDisconnect token 로직 옮기기.
   async handleConnection(client: Socket): Promise<void> {
-    const userId = client.handshake.query.userId.toString()
-    await this.chatService.connect(client.id, userId)
-    const initalChatLobbyStatus =
-      await this.chatService.getChatLobbyStatus(userId)
-    const response: WebSocketResponse = {
-      success: true,
-      statusCode: 200,
-      payload: initalChatLobbyStatus,
+    try {
+      const token = client.handshake.query.accessToken.toString()
+      const [type, tokenValue] = token.split(' ')
+      if (type !== 'Bearer') {
+        throw new SocketException(
+          'Unauthorized',
+          '토큰 타입이 올바르지 않습니다.',
+          401,
+        )
+      }
+      const decoded = await this.jwtService.verifyAsync(tokenValue)
+
+      const userId = decoded['email']
+
+      await this.chatService.connect(client.id, userId)
+      const initalChatLobbyStatus =
+        await this.chatService.getChatLobbyStatus(userId)
+      const response: WebSocketResponse = {
+        success: true,
+        statusCode: 200,
+        payload: initalChatLobbyStatus,
+      }
+      client.emit('updateChatLobbyStatus', response)
+    } catch (error) {
+      this.logger.error(error)
+      client.emit('Exception', {
+        success: false,
+        statusCode: 401,
+        error: error.status,
+        message: error.message,
+      })
+      client.disconnect()
     }
-    client.emit('updateChatLobbyStatus', response)
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
-    const userId = client.handshake.query.userId.toString()
+    const token = client.handshake.query.accessToken.toString()
+    const [type, tokenValue] = token.split(' ')
+    if (type !== 'Bearer') {
+      throw new SocketException(
+        'Unauthorized',
+        '토큰 타입이 올바르지 않습니다.',
+        401,
+      )
+    }
+    const decoded = await this.jwtService.verifyAsync(tokenValue)
+
+    const userId = decoded['userId']
     await this.chatService.disconnect(client.id, userId)
   }
 

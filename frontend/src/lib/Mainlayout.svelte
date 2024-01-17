@@ -55,13 +55,12 @@
 			const userProfileString = sessionStorage.getItem('userProfile');
 			if (userProfileString) {
 				const userProfile = JSON.parse(userProfileString);
-				const userId = encodeURIComponent(userProfile.email);
+				// const userId = encodeURIComponent(userProfile.email);
 
 				socket = io('http://localhost:3030/chat', {
 					transports: ['websocket'],
 					query: {
-						accessToken: `Bearer ${accessToken}`,
-						userId: userId
+						accessToken: `Bearer ${accessToken}`
 					}
 				});
 				console.log(socket);
