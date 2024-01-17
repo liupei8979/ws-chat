@@ -1,40 +1,40 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
 
-	const dispatch = createEventDispatcher()
+	const dispatch = createEventDispatcher();
 
-    type User = {
-        email: string
-        username: string
-        imgSrc?: string
-    }
+	type User = {
+		email: string;
+		username: string;
+		imgSrc?: string;
+	};
 
-    let users: User[] = []
+	let users: User[] = [];
 	let selectedUserId: string | null = null;
 
-    onMount(() => {
-        const userProfileString = sessionStorage.getItem('userProfile')
-        if (userProfileString) {
-            const userProfile = JSON.parse(userProfileString)
-            users = Object.values(userProfile.friends || {}) as User[]
-        }
-    })
+	onMount(() => {
+		const userProfileString = sessionStorage.getItem('userProfile');
+		if (userProfileString) {
+			const userProfile = JSON.parse(userProfileString);
+			users = Object.values(userProfile.friends || {}) as User[];
+		}
+	});
 
 	function handleUserSelect(userId: string) {
 		selectedUserId = userId;
-        dispatch('select', { userId: userId })
+		dispatch('select', { userId: userId });
 	}
 
 	function handleClose() {
 		console.log('Modal closed');
-        dispatch('close')
+		dispatch('close');
 	}
 
 	function handleConfirm() {
 		if (selectedUserId) {
-            console.log('Confirmed with user:', selectedUserId)
-            dispatch('confirm', { userId: selectedUserId })
-        }
+			console.log('Confirmed with user:', selectedUserId);
+			dispatch('confirm', { userId: selectedUserId });
+		}
 	}
 </script>
 

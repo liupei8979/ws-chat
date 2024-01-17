@@ -5,36 +5,36 @@
 
 	let isChattingWindowOpen = false;
 	// 더미 데이터 정의
-    const chatRooms = [
-        {
-            name: 'Room 1',
-            date: '2024-01-16',
-            imgSrc: '../../src/asset/img/base_profile.jpg',
-            preview: 'Last message in Room 1',
-            unreadMessages: 3 // 안 읽은 메시지 수
-        },
-        {
-            name: 'Room 2',
-            date: '2024-01-15',
-            imgSrc: '../../src/asset/img/base_profile.jpg',
-            preview: 'Last message in Room 2',
-            unreadMessages: 5 // 안 읽은 메시지 수
-        }
-    ];
+	const chatRooms = [
+		{
+			name: 'Room 1',
+			date: '2024-01-16',
+			imgSrc: '../../src/asset/img/base_profile.jpg',
+			preview: 'Last message in Room 1',
+			unreadMessages: 3 // 안 읽은 메시지 수
+		},
+		{
+			name: 'Room 2',
+			date: '2024-01-15',
+			imgSrc: '../../src/asset/img/base_profile.jpg',
+			preview: 'Last message in Room 2',
+			unreadMessages: 5 // 안 읽은 메시지 수
+		}
+	];
 
 	function openChattingWindow() {
 		isChattingWindowOpen = true;
 	}
 
-    function handleConfirmUser(event: CustomEvent) {
-        const receiverId: string = event.detail.userId
-        // createOrJoinRoom(receiverId)
-        isChattingWindowOpen = false
-    }
+	function handleConfirmUser(event: CustomEvent) {
+		const receiverId: string = event.detail.userId;
+		// createOrJoinRoom(receiverId)
+		isChattingWindowOpen = false;
+	}
 
-    function handleCloseChattingWindow() {
-        isChattingWindowOpen = false
-    }
+	function handleCloseChattingWindow() {
+		isChattingWindowOpen = false;
+	}
 </script>
 
 <Mainlayout>
@@ -52,21 +52,21 @@
 		{/if}
 	</div>
 	<div class="MainContent">
-        {#each chatRooms as chatRoom}
-            <li>
-                <img src={chatRoom.imgSrc} alt={chatRoom.name || 'Profile Image'} />
-                <p class="room-block-top">
-                    <b>{chatRoom.name}</b>
-                    <span>{chatRoom.date}</span>
-                    {#if chatRoom.unreadMessages > 0}
-                    <span class="unread-messages">{chatRoom.unreadMessages}</span>
-                {/if}
-                </p>
-                
-                <p class="preview">
-                    {chatRoom.preview}
-                </p>
-            </li>
-        {/each}
-    </div>
+		{#each chatRooms as chatRoom}
+			<li>
+				<img src={chatRoom.imgSrc} alt={chatRoom.name || 'Profile Image'} />
+				<p class="room-block-top">
+					<b>{chatRoom.name}</b>
+					<span>{chatRoom.date}</span>
+					{#if chatRoom.unreadMessages > 0}
+						<span class="unread-messages">{chatRoom.unreadMessages}</span>
+					{/if}
+				</p>
+
+				<p class="preview">
+					{chatRoom.preview}
+				</p>
+			</li>
+		{/each}
+	</div>
 </Mainlayout>
