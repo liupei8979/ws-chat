@@ -2,6 +2,7 @@
 	import { onMount, beforeUpdate, setContext } from 'svelte';
 	import { socketStore } from '$lib/stores/socketStore';
 	import io, { Socket } from 'socket.io-client';
+	import type { UserChatInitial } from '../../../packages/types/ws-response';
 
 	let pathname = '';
 	let socket: Socket;
@@ -54,6 +55,7 @@
 			const userProfileString = sessionStorage.getItem('userProfile');
 			if (userProfileString) {
 				const userProfile = JSON.parse(userProfileString);
+				// const userId = encodeURIComponent(userProfile.email);
 
 				socket = io('http://localhost:3030/chat', {
 					transports: ['websocket'],
@@ -67,8 +69,8 @@
 					console.log('Connected to the chat server', socket.id);
 					socketStore.set(socket);
 					// 서버로부터 받은 데이터 처리
-					socket.on('updateChatLobbyStatus', (response) => {
-						console.log('User Chat Data:', response);
+					socket.on('connectResponse', (data: UserChatInitial) => {
+						console.log('User Chat Data:', data);
 						// 여기서 data를 사용하여 UI 업데이트 등의 로직 수행
 					});
 				});
