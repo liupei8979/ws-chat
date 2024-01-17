@@ -10,6 +10,8 @@ tags:
     description: Authroization & Authentication
   - name: user
     description: User operation
+  - name: room
+    description: Room operation
 
 paths:
   /auth/signup:
@@ -180,6 +182,7 @@ paths:
                     error: 'Forbidden'
         '404':
           description: 사용자가 존재하지 않음
+
           content:
             application/json:
               schema:
@@ -243,6 +246,61 @@ paths:
                     success: false
                     statusCode: 404
                     message: '해당 유저가 존재하지 않습니다.'
+                    error: 'Not Found'
+
+  /room/{roomId}:
+    get:
+      summary: 대화방 채팅정보 조회
+      tags:
+        - room
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: roomId
+          required: true
+          schema:
+            type: string
+          description: 조회하고자 하는 채팅방의 ID
+      responses:
+        '200':
+          description: 채팅 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomInfoDto'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    statusCode: 200
+                    message: '채팅 정보 조회에 성공하였습니다.'
+                    data:
+                      roomId: 'exampleRoomId'
+                      title: 'Example Room'
+                      members: ['user1', 'user2']
+                      recentMsgSeq: 123
+                      messages:
+                        - msgId: 'msg123'
+                          msgSeq: 123
+                          senderId: 'user1'
+                          receiverId: 'user2'
+                          content: 'Hello!'
+                          timestamp: 1625217395000
+                          roomId: 'exampleRoomId'
+                      recentUserRead: { 'user1': 120, 'user2': 123 }
+        '404':
+          description: 해당 채팅방이 존재하지 않습니다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                notFoundResponse:
+                  value:
+                    success: false
+                    statusCode: 404
+                    message: '해당 채팅방이 존재하지 않습니다.'
                     error: 'Not Found'
 
 components:
@@ -334,6 +392,7 @@ components:
           type: array
           items:
             type: string
+
     AddFriendDto:
       type: object
       required:
@@ -342,3 +401,56 @@ components:
         email:
           type: string
           example: user
+
+    RoomInfoDto:
+      type: object
+      properties:
+        roomId:
+          type: string
+          example: 'exampleRoomId'
+        title:
+          type: string
+          example: 'Example Room'
+        members:
+          type: array
+          items:
+            type: string
+          example: ['user1', 'user2']
+        recentMsgSeq:
+          type: integer
+          example: 123
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        recentUserRead:
+          type: object
+          additionalProperties:
+            type: integer
+          example: { 'user1': 120, 'user2': 123 }
+
+    Message:
+      type: object
+      properties:
+        msgId:
+          type: string
+          example: 'msg123'
+        msgSeq:
+          type: integer
+          example: 123
+        senderId:
+          type: string
+          example: 'user1'
+        receiverId:
+          type: string
+          example: 'user2'
+        content:
+          type: string
+          example: 'Hello!'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1625217395000
+        roomId:
+          type: string
+          example: 'exampleRoomId'
