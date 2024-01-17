@@ -50,35 +50,32 @@ class UserService {
 	// 	}
 	// }
 
-	// // 친구 요청 수락
-	// async acceptFriendRequest(requestId: string): Promise<void> {
-	// 	try {
-	// 		const response = await fetch(`${this.baseUrl}/api/friends/requests/${requestId}/accept`, {
-	// 			method: 'POST',
-	// 			headers: this.getHeaders()
-	// 		});
-	// 		if (!response.ok) {
-	// 			throw new Error('Failed to accept friend request');
-	// 		}
-	// 	} catch (error) {
-	// 		throw error;
-	// 	}
-	// }
-
-	// // 친구 삭제
-	// async removeFriend(friendId: string): Promise<void> {
-	// 	try {
-	// 		const response = await fetch(`${this.baseUrl}/api/friends/${friendId}`, {
-	// 			method: 'DELETE',
-	// 			headers: this.getHeaders()
-	// 		});
-	// 		if (!response.ok) {
-	// 			throw new Error('Failed to remove friend');
-	// 		}
-	// 	} catch (error) {
-	// 		throw error;
-	// 	}
-	// }
+	// 친구 요청 수락
+	async updateProfile(username: string, statusMessage: string): Promise<void> {
+		const response = await fetch(`${this.baseUrl}/user/profile`, {
+			method: 'PATCH',
+			headers: this.getHeaders(),
+			body: JSON.stringify({ username, statusMessage })
+		});
+		if (!response.ok) {
+			throw new Error('Failed to accept friend request');
+		}
+	}
 }
+
+// // 친구 삭제
+// async removeFriend(friendId: string): Promise<void> {
+// 	try {
+// 		const response = await fetch(`${this.baseUrl}/api/friends/${friendId}`, {
+// 			method: 'DELETE',
+// 			headers: this.getHeaders()
+// 		});
+// 		if (!response.ok) {
+// 			throw new Error('Failed to remove friend');
+// 		}
+// 	} catch (error) {
+// 		throw error;
+// 	}
+// }
 
 export const userService = new UserService();
