@@ -13,8 +13,10 @@ import { JwtAuthGuard } from 'src/auth/jwt.guard'
 import { SocketExceptionFilter } from 'src/middlewares/socket.filter'
 import { ChatService } from './chat.service'
 import { RedisService } from 'src/redis/redis.service'
-import { Message, WebSocketResponse } from '@just-chat/types'
+import { WebSocketResponse } from '@just-chat/types'
 import { CreateRoomDto } from './dto/create-room.dto'
+import { InMessageDto } from './dto/in-message.dto'
+import { OutMessageDto } from './dto/out-message.dto'
 
 @UseFilters(SocketExceptionFilter)
 @WebSocketGateway(3030, { namespace: 'chat', cors: { origin: '*' } })
@@ -36,6 +38,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(client: Socket): Promise<void> {
     const userId = client.handshake.query.userId.toString()
     await this.chatService.connect(client.id, userId)
+    const initalChatLobbyStatus =
+      await this.chatService.getChatLobbyStatus(userId)
+    const response: WebSocketResponse = {
+      success: true,
+      statusCode: 200,
+      payload: initalChatLobbyStatus,
+    }
+    client.emit('updateChatLobbyStatus', response)
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
@@ -68,12 +78,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('sendMessage')
   async handleSendMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: Message,
+    @MessageBody() data: InMessageDto,
   ): Promise<void> {
     const { msgWithSeq, userClientList } =
       await this.chatService.sendMessage(data)
 
-    const payload: Message = msgWithSeq
+    const payload: OutMessageDto = msgWithSeq
     const response: WebSocketResponse = {
       success: true,
       statusCode: 201,
@@ -83,6 +93,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     userClientList.forEach((clientId) => {
       this.server.to(clientId).emit('receiveMessage', response)
     })
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('getChatLobbyStatus')
+  async handleRoomStatus(@ConnectedSocket() client: Socket): Promise<void> {
+    const chatLobbyStatus = await this.chatService.getChatLobbyStatus(
+      client.handshake.query.userId.toString(),
+    )
+    const response: WebSocketResponse = {
+      success: true,
+      statusCode: 200,
+      payload: chatLobbyStatus,
+    }
+    client.emit('updateChatLobbyStatus', response)
   }
 
   @UseGuards(JwtAuthGuard)

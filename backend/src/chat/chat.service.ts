@@ -1,11 +1,13 @@
 import { CollectionReference } from '@google-cloud/firestore'
-import { Message } from '@just-chat/types'
+import { ChatLobbyStatus } from '@just-chat/types'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { RoomDocument } from 'src/firestore/document/document.chatroom'
 import { UserDocument } from 'src/firestore/document/document.user'
 import { SocketException } from 'src/middlewares/socket.exception'
 import { RedisService } from 'src/redis/redis.service'
 import { v4 as uuidv4 } from 'uuid'
+import { InMessageDto } from './dto/in-message.dto'
+import { OutMessageDto } from './dto/out-message.dto'
 
 @Injectable()
 export class ChatService {
@@ -57,8 +59,8 @@ export class ChatService {
   }
 
   async sendMessage(
-    data: Message,
-  ): Promise<{ msgWithSeq: Message; userClientList: string[] }> {
+    data: InMessageDto,
+  ): Promise<{ msgWithSeq: OutMessageDto; userClientList: string[] }> {
     //redis 작업
     const newMessage = await this.redisService.addMessageRoom(data)
     if (!newMessage) {
@@ -92,8 +94,12 @@ export class ChatService {
 
     this.logger.log(`Message ${data.msgId} sent to room ${data.roomId}`)
     return {
-      msgWithSeq: data,
+      msgWithSeq: newMessage,
       userClientList: result,
     }
+  }
+
+  async getChatLobbyStatus(userId: string): Promise<ChatLobbyStatus> {
+    return await this.redisService.getChatLobbyStatus(userId)
   }
 }
