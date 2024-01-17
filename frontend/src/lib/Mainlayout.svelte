@@ -46,7 +46,10 @@
 	function navigateTo(route: string) {
 		location.href = route;
 	}
-	beforeUpdate(() => {
+
+	onMount(() => {
+		pathname = window.location.pathname;
+		console.log('Current URL:', pathname);
 		if (typeof window !== 'undefined' && sessionStorage.getItem('token')) {
 			const accessToken = sessionStorage.getItem('token');
 			const userProfileString = sessionStorage.getItem('userProfile');
@@ -62,10 +65,10 @@
 					}
 				});
 				console.log(socket);
-				socketStore.set(socket);
+
 				socket.on('connect', () => {
 					console.log('Connected to the chat server', socket.id);
-
+					socketStore.set(socket);
 					// 서버로부터 받은 데이터 처리
 					socket.on('connectResponse', (data: UserChatInitial) => {
 						console.log('User Chat Data:', data);
@@ -74,11 +77,6 @@
 				});
 			}
 		}
-	});
-
-	onMount(() => {
-		pathname = window.location.pathname;
-		console.log('Current URL:', pathname);
 	});
 </script>
 

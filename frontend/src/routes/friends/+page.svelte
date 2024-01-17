@@ -10,6 +10,7 @@
 	import FriendsProfileModal from '$lib/components/modal/FriendsProfileModal.svelte';
 	import MyprofileModal from '$lib/components/modal/MyprofileModal.svelte';
 	import { userService } from '$lib/services/UserService';
+	import { chatSession } from '$lib/stores/ChatStore';
 	import type { UserProfile, Friend, CreateRoomResponse } from '.';
 	import './friends.css';
 	import {
@@ -65,7 +66,17 @@
 			// 응답 핸들러 정의
 			const createRoomResponseHandler = (response: CreateRoomResponse) => {
 				if (response.success) {
-					console.log('Room created successfully:', response.payload.roomId);
+					chatSession.set({
+						userId: response.payload.userId,
+						receiverId: response.payload.receiverId,
+						roomId: response.payload.roomId
+					});
+					console.log(
+						'Room created successfully:',
+						response.payload.roomId,
+						response.payload.userId,
+						response.payload.receiverId
+					);
 					goto(`/chat/${response.payload.roomId}`);
 				} else {
 					console.error('Failed to create room:', response);
