@@ -22,6 +22,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@just-chat/types": "workspace:^",
 		"@types/uuid": "^9.0.7",
 		"prettier": "^3.2.2",
 		"socket.io-client": "^4.7.4",
