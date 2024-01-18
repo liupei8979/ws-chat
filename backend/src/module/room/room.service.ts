@@ -25,6 +25,7 @@ export class RoomService {
   ) {}
 
   async getRoomInfo(roomId: string, pagination: number): Promise<RoomInfoDto> {
+    this.logger.log(`getRoomInfo: ${roomId}`)
     const roomRef = this.roomCollection.doc(roomId)
     const roomSnapshot = await roomRef.get()
     if (!roomSnapshot.exists) {

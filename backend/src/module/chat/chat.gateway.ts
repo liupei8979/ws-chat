@@ -13,11 +13,16 @@ import { JwtAuthGuard } from 'src/module/auth/jwt.guard'
 import { SocketExceptionFilter } from 'src/utils/filter/socket.exception.filter'
 import { ChatService } from './chat.service'
 import { WebSocketError, WebSocketResponse } from '@just-chat/types'
-import { CreateRoomDto } from './dto/create-room.dto'
+import {
+  CreateRoomResponseDto,
+  createRoomRequestDto,
+} from './dto/create-room.dto'
 import { InMessageDto } from './dto/in-message.dto'
 import { OutMessageDto } from './dto/out-message.dto'
 import { SocketException } from 'src/common/socket.exception'
 import { JwtService } from '@nestjs/jwt'
+import { LobbyStatusDto } from './dto/lobby-status.dto'
+import { LeaveRoomRequestDto } from './dto/leave-room.dto'
 
 @UseFilters(SocketExceptionFilter)
 @WebSocketGateway(3030, { namespace: 'chat', cors: { origin: '*' } })
@@ -39,8 +44,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // connection하고 disconnection에서는 필터로 에러를 잡을 수가 없음.
   async handleConnection(client: Socket): Promise<void> {
     try {
-      const token = client.handshake.query.accessToken.toString()
-      const userId = await this.extractUserIdFromQueryToken(client, token)
+      const userId = await this.clientToUser(client)
 
       await this.chatService.connect(client.id, userId)
       const initalChatLobbyStatus =
@@ -58,14 +62,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         statusCode: 500,
         error: 'InternalServerError',
       })
+      await this.chatService.disconnect(
+        client.id,
+        await this.clientToUser(client),
+      )
       client.disconnect()
     }
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
     try {
-      const token = client.handshake.query.accessToken.toString()
-      const userId = await this.extractUserIdFromQueryToken(client, token)
+      const userId = await this.clientToUser(client)
       await this.chatService.disconnect(client.id, userId)
     } catch (e) {
       this.logger.error(e)
@@ -74,6 +81,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         statusCode: 500,
         error: 'InternalServerError',
       })
+      await this.chatService.disconnect(
+        client.id,
+        await this.clientToUser(client),
+      )
+      client.disconnect()
     }
   }
 
@@ -81,11 +93,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('createRoom')
   async handleCreateRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
+    @MessageBody() data: createRoomRequestDto,
   ): Promise<void> {
     const { userId, receiverId } = data
     const roomId = await this.chatService.createRoom(userId, receiverId)
-    const payload: CreateRoomDto = {
+    const payload: CreateRoomResponseDto = {
       userId: userId,
       receiverId: receiverId,
       roomId: roomId,
@@ -102,7 +114,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('leaveRoom')
   async handleLeaveRoom(
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
+    @MessageBody() data: LeaveRoomRequestDto,
   ): Promise<void> {
     const { userId, roomId } = data
     const leaved = await this.chatService.leaveRoom(userId, roomId)
@@ -148,15 +160,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @UseGuards(JwtAuthGuard)
   @SubscribeMessage('getChatLobbyStatus')
   async handleRoomStatus(@ConnectedSocket() client: Socket): Promise<void> {
-    const chatLobbyStatus = await this.chatService.getChatLobbyStatus(
-      client.handshake.query.userId.toString(),
-    )
+    const chatLobbyStatus: LobbyStatusDto =
+      await this.chatService.getChatLobbyStatus(
+        client.handshake.query.userId.toString(),
+      )
     const response: WebSocketResponse = {
       success: true,
       statusCode: 200,
       payload: chatLobbyStatus,
     }
     client.emit('updateChatLobbyStatus', response)
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @SubscribeMessage('readRoom')
+  async readRoom(
+    @ConnectedSocket() clinet: Socket,
+    @MessageBody() data: LeaveRoomRequestDto,
+  ): Promise<void> {
+    const { userId, roomId } = data
+    const clients = await this.chatService.readRoom(userId, roomId)
+    const response: WebSocketResponse = {
+      success: true,
+      statusCode: 201,
+      payload: {
+        roomId: roomId,
+      },
+    }
+    clients.map((clientId) => {
+      this.server.to(clientId).emit('readRoomResponse', response)
+    })
   }
 
   @UseGuards(JwtAuthGuard)
@@ -168,6 +201,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log(`Client ${client.id} sent: ${data}`)
     if ('userId' in client) this.logger.log(`Client userId is ${client.userId}`)
     client.emit('testResponse', data)
+  }
+
+  private async clientToUser(client: Socket): Promise<string> {
+    const token = client.handshake.query.accessToken.toString()
+    return this.extractUserIdFromQueryToken(client, token)
   }
 
   // 일단은 Jwt로직 여기다 옮기긴 했음.

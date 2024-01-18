@@ -1,9 +1,12 @@
-import { ChatLobbyRoomStatus, ChatLobbyStatus, Message } from '@just-chat/types'
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { RedisClientType, createClient } from 'redis'
 import { InMessageDto } from 'src/module/chat/dto/in-message.dto'
 import { OutMessageDto } from 'src/module/chat/dto/out-message.dto'
+import {
+  LobbyRoomStatusDto,
+  LobbyStatusDto,
+} from '../chat/dto/lobby-status.dto'
 
 @Injectable()
 export class RedisService {
@@ -132,7 +135,6 @@ export class RedisService {
       if (users.includes(receiverId) && users.includes(userId)) {
         return roomId
       }
-      5
     }
     return false
   }
@@ -172,7 +174,7 @@ export class RedisService {
     return data ? parseInt(data) : 0
   }
 
-  async setRoomRecentMsg(roomId: string, msg: Message): Promise<void> {
+  async setRoomRecentMsg(roomId: string, msg: OutMessageDto): Promise<void> {
     await this.pubClient.set(`roomRecentMsg:${roomId}`, JSON.stringify(msg))
   }
 
@@ -180,7 +182,7 @@ export class RedisService {
     await this.pubClient.del(`roomRecentMsg:${roomId}`)
   }
 
-  async getRoomRecentMsg(roomId: string): Promise<Message> {
+  async getRoomRecentMsg(roomId: string): Promise<OutMessageDto> {
     const data = await this.pubClient.get(`roomRecentMsg:${roomId}`)
     return data ? JSON.parse(data) : null
   }
@@ -222,14 +224,16 @@ export class RedisService {
     }
   }
 
-  async getChatLobbyStatus(userId: string): Promise<ChatLobbyStatus> {
+  async getChatLobbyStatus(userId: string): Promise<LobbyStatusDto> {
     const rooms = await this.getUserToRoom(userId)
     let totalUnread = 0
-    const roomStatus: ChatLobbyRoomStatus[] = await Promise.all(
+    const roomStatus: LobbyRoomStatusDto[] = await Promise.all(
       rooms.map(async (roomId) => {
         const roomRecentMsg = await this.getRoomRecentMsg(roomId)
         const userSeq = await this.getUserRecentReadSeq(userId, roomId)
-        const userUnread = roomRecentMsg.msgSeq - userSeq
+        let userUnread = 0
+        if (roomRecentMsg !== null) userUnread = roomRecentMsg.msgSeq - userSeq
+        else userUnread = 0
         totalUnread += userUnread
         return {
           roomId: roomId,
@@ -258,5 +262,28 @@ export class RedisService {
     }
     // 방에 사람 남아있으면 false.
     return false
+  }
+
+  async readRoom(
+    userId: string,
+    roomId: string,
+  ): Promise<{ roomSeq: number; clients: string[] }> {
+    const roomSeq = await this.getRoomRecentSeq(roomId)
+    const userReadSeq = await this.getUserRecentReadSeq(userId, roomId)
+    if (roomSeq > userReadSeq) {
+      await this.setUserRecentReadSeq(userId, roomId, roomSeq)
+      const users = await this.getRoomToUser(roomId)
+      const clients = await Promise.all(
+        users.map(async (userId) => {
+          return await this.getUserToClient(userId)
+        }),
+      )
+      return {
+        roomSeq,
+        clients,
+      }
+    } else {
+      return null
+    }
   }
 }

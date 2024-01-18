@@ -1,5 +1,4 @@
 import { CollectionReference } from '@google-cloud/firestore'
-import { ChatLobbyStatus } from '@just-chat/types'
 import { Inject, Injectable, Logger } from '@nestjs/common'
 import { RoomDocument } from 'src/common/document/document.chatroom'
 import { UserDocument } from 'src/common/document/document.user'
@@ -8,6 +7,7 @@ import { RedisService } from 'src/module/redis/redis.service'
 import { v4 as uuidv4 } from 'uuid'
 import { InMessageDto } from './dto/in-message.dto'
 import { OutMessageDto } from './dto/out-message.dto'
+import { LobbyStatusDto } from './dto/lobby-status.dto'
 
 @Injectable()
 export class ChatService {
@@ -71,6 +71,25 @@ export class ChatService {
     return true
   }
 
+  async readRoom(userId: string, roomId: string): Promise<string[]> {
+    const { roomSeq, clients } = await this.redisService.readRoom(
+      userId,
+      roomId,
+    )
+    if (roomSeq) {
+      const roomRef = this.roomCollection.doc(roomId)
+      const roomDoc = await roomRef.get()
+      const recentUserRead = roomDoc.data()?.recentUserRead || {}
+      recentUserRead[userId] = roomSeq
+      await roomRef.update({
+        recentUserRead: recentUserRead,
+      })
+      return clients
+    } else {
+      return null
+    }
+  }
+
   async sendMessage(
     data: InMessageDto,
   ): Promise<{ msgWithSeq: OutMessageDto; userClientList: string[] }> {
@@ -112,7 +131,7 @@ export class ChatService {
     }
   }
 
-  async getChatLobbyStatus(userId: string): Promise<ChatLobbyStatus> {
+  async getChatLobbyStatus(userId: string): Promise<LobbyStatusDto> {
     const lobbyStatus = await this.redisService.getChatLobbyStatus(userId)
 
     // db에서 title 조회해서 있으면 해당 title(단체톡), 없으면 상대방 이름전달.
