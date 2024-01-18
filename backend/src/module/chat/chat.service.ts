@@ -32,7 +32,10 @@ export class ChatService {
     this.logger.log(`Client ${clientId} disconnected`)
   }
 
-  async createRoom(userId: string, receiverId: string): Promise<string> {
+  async createRoom(
+    userId: string,
+    receiverId: string,
+  ): Promise<{ roomId: string; title: string }> {
     const isExistRoom = await this.redisService.isExistRoom(userId, receiverId)
     let roomId
     if (isExistRoom === false) {
@@ -54,8 +57,15 @@ export class ChatService {
       // 있으면 기존 방 번호 return
       roomId = isExistRoom
     }
+
+    const title = (await this.usersCollection.doc(receiverId).get())?.data()
+      .username
+
     this.logger.log(`Room ${roomId} created`)
-    return roomId
+    return {
+      roomId,
+      title: title,
+    }
   }
 
   async leaveRoom(userId: string, roomId: string): Promise<boolean> {

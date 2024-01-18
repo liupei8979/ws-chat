@@ -22,4 +22,8 @@ export class CreateRoomResponseDto {
   @IsString()
   @IsNotEmpty()
   roomId: string
+
+  @IsString()
+  @IsNotEmpty()
+  title: string
 }

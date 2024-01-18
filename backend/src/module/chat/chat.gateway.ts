@@ -96,11 +96,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() data: createRoomRequestDto,
   ): Promise<void> {
     const { userId, receiverId } = data
-    const roomId = await this.chatService.createRoom(userId, receiverId)
+    const { roomId, title } = await this.chatService.createRoom(
+      userId,
+      receiverId,
+    )
     const payload: CreateRoomResponseDto = {
       userId: userId,
       receiverId: receiverId,
       roomId: roomId,
+      title: title,
     }
     const response: WebSocketResponse = {
       success: true,
