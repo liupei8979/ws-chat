@@ -21,8 +21,9 @@
 	// 더미 데이터 정의
 	let chatRooms: ChatRoom[] = [];
 
-	$: filteredChatRooms = chatRooms.filter(room => 
-        room.title.toLowerCase().includes(searchQuery.toLowerCase()));
+	$: filteredChatRooms = chatRooms.filter((room) =>
+		room.title.toLowerCase().includes(searchQuery.toLowerCase())
+	);
 
 	beforeUpdate(() => {
 		const userProfileString = sessionStorage.getItem('userProfile');
@@ -50,25 +51,25 @@
 	// }
 
 	onMount(() => {
-        if (typeof window !== 'undefined') {
-            const userChatDataString = sessionStorage.getItem('userChatData');
-            if (userChatDataString) {
-                const userChatData = JSON.parse(userChatDataString);
+		if (typeof window !== 'undefined') {
+			const userChatDataString = sessionStorage.getItem('userChatData');
+			if (userChatDataString) {
+				const userChatData = JSON.parse(userChatDataString);
 
-                chatRooms = userChatData.payload.rooms
-                    .map((room) => ({
-                        title: room.title,
-                        roomId: room.roomId,
-                        name: room.recentMsg.senderId,
-                        timestamp: room.recentMsg.timestamp, // 원본 타임스탬프 저장
-                        date: new Date(room.recentMsg.timestamp).toLocaleDateString(),
-                        preview: room.recentMsg.content,
-                        unreadMessages: room.userUnread
-                    }))
-                    .sort((a, b) => b.timestamp - a.timestamp); // 타임스탬프를 사용한 정렬
-            }
-        }
-    });
+				chatRooms = userChatData.payload.rooms
+					.map((room) => ({
+						title: room.title,
+						roomId: room.roomId,
+						name: room.recentMsg.senderId,
+						timestamp: room.recentMsg.timestamp, // 원본 타임스탬프 저장
+						date: new Date(room.recentMsg.timestamp).toLocaleDateString(),
+						preview: room.recentMsg.content,
+						unreadMessages: room.userUnread
+					}))
+					.sort((a, b) => b.timestamp - a.timestamp); // 타임스탬프를 사용한 정렬
+			}
+		}
+	});
 	function openChattingWindow() {
 		isChattingWindowOpen = true;
 	}
@@ -140,10 +141,10 @@
 		isChattingWindowOpen = false;
 	}
 	// $: {
-    //     if (typeof window !== 'undefined' && $userChatDataString) {
-    //         const userChatData = JSON.parse($userChatDataString);
-    //         chatRooms = userChatData.payload.rooms.map((room) => {
-    //             return {
+	//     if (typeof window !== 'undefined' && $userChatDataString) {
+	//         const userChatData = JSON.parse($userChatDataString);
+	//         chatRooms = userChatData.payload.rooms.map((room) => {
+	//             return {
 	// 				title: room.title,
 	// 				roomId: room.roomId,
 	// 				name: room.recentMsg.senderId, // 채팅방 이름 (예: senderId)
@@ -151,27 +152,24 @@
 	// 				preview: room.recentMsg.content, // 최근 메시지 내용
 	// 				unreadMessages: room.userUnread // 안 읽은 메시지 수
 	// 			};
-    //         });
-    //     }
-    // }
-	
+	//         });
+	//     }
+	// }
 </script>
 
 <Mainlayout>
 	<div class="MainHeader">
 		<div class="TitleBlock">
-            <h2>채팅</h2>
-            <button class="icon-button" on:click={openChattingWindow} aria-label="새로운 채팅">
-                <i class="fas fa-comment-medical" title="새로운 채팅"></i>
-            </button>
-        </div>
-        <input 
-            placeholder="채팅방 이름, 참여자 검색"
-            bind:value={searchQuery} />
-    </div>
+			<h2>채팅</h2>
+			<button class="icon-button" on:click={openChattingWindow} aria-label="새로운 채팅">
+				<i class="fas fa-comment-medical" title="새로운 채팅"></i>
+			</button>
+		</div>
+		<input placeholder="채팅방 이름, 참여자 검색" bind:value={searchQuery} />
+	</div>
 	<div class="MainContent">
 		{#each filteredChatRooms as chatRoom}
-		<li class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
+			<li class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
 				<img
 					src={chatRoom.imgSrc || '../../src/asset/img/base_profile.jpg'}
 					alt={chatRoom.name || 'Profile Image'}
