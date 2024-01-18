@@ -262,6 +262,13 @@ paths:
           schema:
             type: string
           description: 조회하고자 하는 채팅방의 ID
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: integer
+            default: 1
+          description: 페이지번호(기본값-1)
       responses:
         '200':
           description: 채팅 정보 조회 성공

@@ -20,7 +20,8 @@ export class RoomController {
   @UseGuards(JwtAuthGuard)
   @Get('/:roomId')
   async getRoomInfo(@Req() req, @Res() res, @Query() data: any) {
-    const { page } = data
+    let { page } = data
+    if (!page) page = 1
     const roomInfo = await this.roomService.getRoomInfo(req.params.roomId, page)
     const response: ApiResponse<RoomInfoDto> = {
       success: true,
