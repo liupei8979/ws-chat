@@ -16,5 +16,6 @@ export interface ChatRoom {
 	date: string;
 	preview: string;
 	unreadMessages: number;
-	imgSrc?: string; // Optional property
+	imgSrc?: string;
+	timestamp: number;
 }

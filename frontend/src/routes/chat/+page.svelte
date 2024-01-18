@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { writable } from 'svelte/store';
 	import { onMount, beforeUpdate } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { socketStore } from '$lib/stores/socketStore';
@@ -13,17 +12,12 @@
 	let socket: Socket | null = null;
 	let isChattingWindowOpen = false;
 	let searchQuery = ''; // 검색어 상태 변수
-	// const userChatDataString = writable(sessionStorage.getItem('userChatData'));
+	let userId: string;
+	let chatRooms: ChatRoom[] = [];
+
 	socketStore.subscribe((value) => {
 		socket = value;
 	});
-	let userId: string;
-	// 더미 데이터 정의
-	let chatRooms: ChatRoom[] = [];
-
-	$: filteredChatRooms = chatRooms.filter((room) =>
-		room.title.toLowerCase().includes(searchQuery.toLowerCase())
-	);
 
 	beforeUpdate(() => {
 		const userProfileString = sessionStorage.getItem('userProfile');
@@ -32,24 +26,6 @@
 			userId = JSON.parse(userProfileString).email;
 		}
 	});
-
-	// $: {
-	//     const chatData = $userChatDataString;
-	//     if (chatData) {
-	//         const userChatData = JSON.parse(chatData);
-	//         chatRooms = userChatData.payload.rooms.map((room) => {
-	//             return {
-	//                 title: room.title,
-	//                 roomId: room.roomId,
-	//                 name: room.recentMsg.senderId,
-	//                 date: new Date(room.recentMsg.timestamp).toLocaleDateString(),
-	//                 preview: room.recentMsg.content,
-	//                 unreadMessages: room.userUnread
-	//             };
-	//         });
-	//     }
-	// }
-
 	onMount(() => {
 		if (typeof window !== 'undefined') {
 			const userChatDataString = sessionStorage.getItem('userChatData');
@@ -57,7 +33,7 @@
 				const userChatData = JSON.parse(userChatDataString);
 
 				chatRooms = userChatData.payload.rooms
-					.map((room) => ({
+					.map((room: any) => ({
 						title: room.title,
 						roomId: room.roomId,
 						name: room.recentMsg.senderId,
@@ -66,7 +42,7 @@
 						preview: room.recentMsg.content,
 						unreadMessages: room.userUnread
 					}))
-					.sort((a, b) => b.timestamp - a.timestamp); // 타임스탬프를 사용한 정렬
+					.sort((a: ChatRoom, b: ChatRoom) => b.timestamp - a.timestamp);
 			}
 		}
 	});
@@ -79,6 +55,7 @@
 		createOrJoinRoom(receiverId);
 		isChattingWindowOpen = false;
 	}
+	
 	function createOrJoinRoom(receiverId: string) {
 		if (socket && userId && receiverId) {
 			console.log('Calling socket.emit with:', { userId, receiverId });
@@ -115,7 +92,7 @@
 		const userChatDataString = sessionStorage.getItem('userChatData');
 		if (userChatDataString) {
 			const userChatData = JSON.parse(userChatDataString);
-			const room = userChatData.payload.rooms.find((room) => room.roomId === roomId);
+			const room = userChatData.payload.rooms.find((room: any) => room.roomId === roomId);
 
 			if (room) {
 				// 이 부분은 실제 사용자 ID와 상대방 ID를 어떻게 구분하는지에 따라 다를 수 있습니다.
@@ -140,21 +117,10 @@
 	function handleCloseChattingWindow() {
 		isChattingWindowOpen = false;
 	}
-	// $: {
-	//     if (typeof window !== 'undefined' && $userChatDataString) {
-	//         const userChatData = JSON.parse($userChatDataString);
-	//         chatRooms = userChatData.payload.rooms.map((room) => {
-	//             return {
-	// 				title: room.title,
-	// 				roomId: room.roomId,
-	// 				name: room.recentMsg.senderId, // 채팅방 이름 (예: senderId)
-	// 				date: new Date(room.recentMsg.timestamp).toLocaleDateString(), // 날짜 변환
-	// 				preview: room.recentMsg.content, // 최근 메시지 내용
-	// 				unreadMessages: room.userUnread // 안 읽은 메시지 수
-	// 			};
-	//         });
-	//     }
-	// }
+
+	$: filteredChatRooms = chatRooms.filter((room: ChatRoom) =>
+	room.title.toLowerCase().includes(searchQuery.toLowerCase())
+	);
 </script>
 
 <Mainlayout>
@@ -166,10 +132,13 @@
 			</button>
 		</div>
 		<input placeholder="채팅방 이름, 참여자 검색" bind:value={searchQuery} />
+		{#if isChattingWindowOpen}
+			<NewChattingModal on:confirm={handleConfirmUser} on:close={handleCloseChattingWindow} />
+		{/if}
 	</div>
 	<div class="MainContent">
 		{#each filteredChatRooms as chatRoom}
-			<li class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
+			<button class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
 				<img
 					src={chatRoom.imgSrc || '../../src/asset/img/base_profile.jpg'}
 					alt={chatRoom.name || 'Profile Image'}
@@ -184,7 +153,7 @@
 				<p class="preview">
 					{chatRoom.preview}
 				</p>
-			</li>
+			</button>
 		{/each}
 	</div>
 </Mainlayout>
