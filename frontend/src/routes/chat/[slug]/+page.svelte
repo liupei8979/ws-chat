@@ -152,8 +152,11 @@
 					<p>{message.content}</p>
 				</div>
 				<span class="timestamp">
-					{new Date(message.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-				</span>		
+					{new Date(message.timestamp || Date.now()).toLocaleTimeString([], {
+						hour: '2-digit',
+						minute: '2-digit'
+					})}
+				</span>
 			</div>
 		{/each}
 	</div>

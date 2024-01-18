@@ -11,7 +11,6 @@
 
 	let socket: Socket | null = null;
 	let isChattingWindowOpen = false;
-	
 
 	socketStore.subscribe((value) => {
 		socket = value;
@@ -37,7 +36,7 @@
 			// 채팅방 데이터를 chatRooms 배열로 변환
 			chatRooms = userChatData.payload.rooms.map((room) => {
 				return {
-					title : room.title,
+					title: room.title,
 					roomId: room.roomId,
 					name: room.recentMsg.senderId, // 채팅방 이름 (예: senderId)
 					date: new Date(room.recentMsg.timestamp).toLocaleDateString(), // 날짜 변환
@@ -68,7 +67,7 @@
 			const createRoomResponseHandler = (response: CreateRoomResponse) => {
 				if (response.success) {
 					chatSession.set({
-						title: "임시 값",
+						title: '임시 값',
 						userId: response.payload.userId,
 						receiverId: response.payload.receiverId,
 						roomId: response.payload.roomId,
@@ -136,7 +135,7 @@
 	</div>
 	<div class="MainContent">
 		{#each chatRooms as chatRoom}
-		<li class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
+			<li class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
 				<img
 					src={chatRoom.imgSrc || '../../src/asset/img/base_profile.jpg'}
 					alt={chatRoom.name || 'Profile Image'}
