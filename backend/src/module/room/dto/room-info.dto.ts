@@ -1,10 +1,32 @@
-import { Message, Room } from '@just-chat/types'
+import { Message } from '@just-chat/types'
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
-export class RoomInfoDto implements Room {
+export class RoomInfoDto {
+  @IsString()
+  @IsNotEmpty()
   roomId: string
+
+  @IsString()
+  @IsNotEmpty()
   title: string
-  members: string[]
+
+  members: Member[]
+
   messages: Message[]
+
+  @IsNumber()
+  @IsNotEmpty()
   recentMsgSeq: number
+
   recentUserRead: { [userId: string]: number }
+}
+
+export class Member {
+  @IsString()
+  @IsNotEmpty()
+  userId: string
+
+  @IsString()
+  @IsNotEmpty()
+  username: string
 }

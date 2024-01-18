@@ -113,6 +113,31 @@ export class ChatService {
   }
 
   async getChatLobbyStatus(userId: string): Promise<ChatLobbyStatus> {
-    return await this.redisService.getChatLobbyStatus(userId)
+    const lobbyStatus = await this.redisService.getChatLobbyStatus(userId)
+
+    // db에서 title 조회해서 있으면 해당 title(단체톡), 없으면 상대방 이름전달.
+    lobbyStatus.rooms
+    this.roomCollection.doc()
+
+    for (const room of lobbyStatus.rooms) {
+      const roomDocRef = this.roomCollection.doc(room.roomId)
+      const roomDoc = await roomDocRef.get()
+
+      if (roomDoc.exists) {
+        const roomData = roomDoc.data()
+        if (roomData && roomData.title) {
+          room.title = roomData.title
+        } else {
+          const otherMemberId = roomData.members.find(
+            (memberId) => memberId !== userId,
+          )
+          room.title = (
+            await this.usersCollection.doc(otherMemberId).get()
+          ).data()?.username
+        }
+      }
+    }
+
+    return lobbyStatus
   }
 }

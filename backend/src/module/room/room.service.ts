@@ -10,6 +10,7 @@ import { RoomDocument } from 'src/common/document/document.chatroom'
 import { createApiError } from 'src/utils/api-error.util'
 import { RoomInfoDto } from './dto/room-info.dto'
 import { Message } from '@just-chat/types'
+import { UserDocument } from 'src/common/document/document.user'
 
 const MESSAGEPERPAGE: number = 100
 
@@ -19,6 +20,8 @@ export class RoomService {
   constructor(
     @Inject(RoomDocument.collectionName)
     private roomCollection: CollectionReference<RoomDocument>,
+    @Inject(UserDocument.collectionName)
+    private usersCollection: CollectionReference<UserDocument>,
   ) {}
 
   async getRoomInfo(roomId: string, pagination: number): Promise<RoomInfoDto> {
@@ -60,15 +63,27 @@ export class RoomService {
       }
     })
 
+    const memberIds = roomSnapshot.data()?.members || []
+    const memberName = await Promise.all(
+      memberIds.map(async (memberId: string) => {
+        const userSnapshot = await this.usersCollection.doc(memberId).get()
+        return userSnapshot.exists ? userSnapshot.data()?.username : 'Unknown'
+      }),
+    )
+
+    const membersWithNames = memberIds.map((memberId, index) => ({
+      userId: memberId,
+      username: memberName[index],
+    }))
+
     const result: RoomInfoDto = {
       roomId: roomSnapshot.data()?.roomId,
       title: roomSnapshot.data()?.title,
-      members: roomSnapshot.data()?.members,
+      members: membersWithNames,
       recentMsgSeq: recentSeq,
       messages: messagesData,
       recentUserRead: roomSnapshot.data()?.recentUserRead,
     }
-    this.logger.log(result)
 
     return result
   }

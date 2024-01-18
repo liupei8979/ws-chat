@@ -262,13 +262,6 @@ paths:
           schema:
             type: string
           description: 조회하고자 하는 채팅방의 ID
-        - in: query
-          name: page
-          required: true
-          schema:
-            type: integer
-            default: 1
-          description: 페이지번호(기본값-1)
       responses:
         '200':
           description: 채팅 정보 조회 성공
@@ -285,7 +278,11 @@ paths:
                     data:
                       roomId: 'exampleRoomId'
                       title: 'Example Room'
-                      members: ['user1', 'user2']
+                      members:
+                        - userId: 'test1@gmail.com'
+                          username: 'test1'
+                        - userId: 'test2@gmail.com'
+                          username: 'test2'
                       recentMsgSeq: 123
                       messages:
                         - msgId: 'msg123'

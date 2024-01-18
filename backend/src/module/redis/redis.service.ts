@@ -233,6 +233,7 @@ export class RedisService {
         totalUnread += userUnread
         return {
           roomId: roomId,
+          title: '',
           userUnread: userUnread,
           recentMsg: roomRecentMsg,
         }
