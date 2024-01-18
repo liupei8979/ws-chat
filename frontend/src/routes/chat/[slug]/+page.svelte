@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Message } from '@just-chat/types';
+	import { goto } from '$app/navigation';
 	import './chattingRoom.css';
 	import { onMount } from 'svelte';
 	import io, { Socket } from 'socket.io-client';
@@ -14,93 +15,153 @@
 	socketStore.subscribe((value) => {
 		socket = value;
 	});
-
+	let isSending = false; // 메시지 전송 중인지 확인하는 플래그
 	let userId: string = get(chatSession).userId;
 	let receiverId: string = get(chatSession).receiverId;
 	let messageContent = '';
 	let messages: Message[] = [];
 	let roomId: string = $page.params.slug;
-	$: roomId = $page.params.slug;
-
-	const currentUserID = 'user123'; // 현재 사용자의 ID
-
-	// 메시지 더미 데이터 with the defined type
-	const sortedMessages: Message[] = [
-		{
-			id: 'msg1',
-			text: '안녕하세요!',
-			timestamp: new Date('2024-01-16T09:00'),
-			senderId: 'user123'
-		},
-		{ id: 'msg2', text: '반가워요!', timestamp: new Date('2024-01-16T09:05'), senderId: 'user456' }
-	];
+	let chatContainer: HTMLElement | null = null;
 
 	onMount(() => {
+		fetchRoomMessages();
 		if (socket) {
-			console.log('mounting socket on chatting room:', socket);
-			// 서버로부터 메시지 수신
 			socket.on('receiveMessage', (response) => {
-				// 여기에 로그 추가
-				if (response.success) {
-					console.log('Received message response:', response.payload);
-					messages = [...messages, response.payload];
+				if (response.success && response.payload.timestamp) {
+					const newMessage = {
+						...response.payload,
+						timestamp: new Date(response.payload.timestamp)
+					};
+					messages = [...messages, newMessage];
 				}
 			});
 		}
 	});
 
-	function sendMessage() {
-		const msgId = v4();
-		if (socket && messageContent.trim() !== '') {
-			console.log('Sending message:', {
-				msgId,
-				senderId: userId,
-				receiverId: receiverId,
-				roomId,
-				content: messageContent
+	async function fetchRoomMessages() {
+		const token = sessionStorage.getItem('token');
+		if (!token) {
+			console.error('No token found');
+			return;
+		}
+
+		try {
+			const response = await fetch(`http://localhost:3003/room/${roomId}?page=0`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
 			});
 
-			socket.emit('sendMessage', {
-				msgId,
-				senderId: userId,
-				receiverId: receiverId,
-				roomId,
-				content: messageContent
-			});
+			if (!response.ok) {
+				throw new Error('Failed to fetch room messages');
+			}
 
-			messageContent = ''; // 메시지 전송 후 입력 필드 초기화
+			const data = await response.json();
+			if (data.success) {
+				messages = data.data.messages.reverse().map((msg: Message) => ({
+					...msg,
+					timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
+				}));
+			} else {
+				console.error('Failed to fetch room messages: ', data.message);
+			}
+		} catch (error) {
+			console.error('Error fetching room messages:', error);
 		}
 	}
+
+	function sendMessage() {
+		const msgId = v4();
+		if (socket && !isSending) {
+			isSending = true; // 메시지 전송 시작
+
+			const trimmedContent = messageContent.trim();
+			if (trimmedContent !== '') {
+				console.log('Sending message:', {
+					msgId,
+					senderId: userId,
+					receiverId: receiverId,
+					roomId,
+					content: trimmedContent
+				});
+
+				socket.emit('sendMessage', {
+					msgId,
+					senderId: userId,
+					receiverId: receiverId,
+					roomId,
+					content: trimmedContent
+				});
+			}
+			setTimeout(() => {
+				isSending = false; // 메시지 전송 완료 후 상태 변경
+				messageContent = '';
+				messageContent = messageContent;
+			}, 0);
+		}
+	}
+
 	// Use the Message type for the parameter
 	function isSentByCurrentUser(message: Message) {
-		return message.senderId === currentUserID;
+		return message.senderId === userId;
+	}
+
+	function updateScroll() {
+		if (chatContainer) {
+			chatContainer.scrollTop = chatContainer.scrollHeight;
+		}
+	}
+	function goBack() {
+		history.back();
+	}
+	function handleKeyDown(event: KeyboardEvent) {
+		if (event.key === 'Enter' && !event.shiftKey) {
+			event.preventDefault(); // Shift 키가 없이 Enter 키만 눌렸을 때 기본 동작 방지
+			if (!isSending) {
+				sendMessage(); // 메시지 전송 함수 호출
+				messageContent = '';
+			}
+		}
+	}
+	function handleSubmit(event: Event) {
+		event.preventDefault(); // 폼 제출 기본 동작 방지
+		if (messageContent.trim() !== '') {
+			sendMessage();
+			messageContent = '';
+		}
+	}
+
+	$: if (messages.length > 0) {
+		setTimeout(updateScroll, 0); // 비동기적으로 스크롤 업데이트 호출
 	}
 </script>
 
 <div class="ChatContainer">
-	<!-- 채팅방 이름 -->
 	<div class="ChatHeader">
-		<button type="button">
+		<button type="button" on:click={goBack}>
 			<i class="fas fa-arrow-left" />
 		</button>
 		<span>방 이름</span>
 	</div>
-	<!--메시지 내역 -->
-	<div class="Chatting">
-		{#each sortedMessages as message (message.id)}
+	<div class="Chatting" bind:this={chatContainer}>
+		{#each messages as message (message.msgId)}
 			<div class="Message {isSentByCurrentUser(message) ? 'sent' : 'received'}">
 				<div class="bubble">
-					<p>{message.text}</p>
+					<p>{message.content}</p>
 				</div>
 				<span class="timestamp">{new Date(message.timestamp).toLocaleTimeString()}</span>
 			</div>
 		{/each}
 	</div>
-</div>
-<!-- 메시지 입력창 -->
-<div class="ChattingMessage">
-	<form on:submit|preventDefault={sendMessage}>
-		<textarea placeholder="메시지를 입력하세요..." bind:value={messageContent}></textarea>
-		<button type="submit">전송</button>
-	</form>
+	<div class="ChattingMessage">
+		<form on:submit={handleSubmit}>
+			<textarea
+				placeholder="메시지를 입력하세요..."
+				bind:value={messageContent}
+				on:keydown={handleKeyDown}
+			></textarea>
+			<button type="submit">전송</button>
+		</form>
+	</div>
 </div>
