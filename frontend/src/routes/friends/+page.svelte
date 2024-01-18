@@ -68,17 +68,13 @@
 			const createRoomResponseHandler = (response: CreateRoomResponse) => {
 				if (response.success) {
 					chatSession.set({
+						title: '임시 값',
 						userId: response.payload.userId,
 						receiverId: response.payload.receiverId,
 						roomId: response.payload.roomId,
 						messages: []
 					});
-					console.log(
-						'Room created successfully:',
-						response.payload.roomId,
-						response.payload.userId,
-						response.payload.receiverId
-					);
+					console.log('Room created successfully:', response.payload);
 					goto(`/chat/${response.payload.roomId}`);
 				} else {
 					console.error('Failed to create room:', response);

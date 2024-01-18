@@ -8,3 +8,12 @@ export interface CreateRoomResponse {
 	};
 	// 에러 메시지나 기타 필드들...
 }
+export interface ChatRoom {
+	title: string;
+	roomId: string;
+	name: string;
+	date: string;
+	preview: string;
+	unreadMessages: number;
+	imgSrc?: string; // Optional property
+}
