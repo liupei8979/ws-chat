@@ -55,7 +55,6 @@
 			const userProfileString = sessionStorage.getItem('userProfile');
 			if (userProfileString) {
 				const userProfile = JSON.parse(userProfileString);
-				// const userId = encodeURIComponent(userProfile.email);
 
 				socket = io(`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_WS_PORT}/chat`, {
 					transports: ['websocket'],
@@ -67,10 +66,10 @@
 
 				socket.on('connect', () => {
 					console.log('Connected to the chat server', socket.id);
-					// 서버로부터 받은 데이터 처리
 					socket.on('updateChatLobbyStatus', (data) => {
 						console.log('User Chat Data:', data);
 						sessionStorage.setItem('userChatData', JSON.stringify(data));
+						totalUnread = data.payload.totalUnread || 0; // 여기에서 totalUnread 업데이트
 					});
 				});
 				socketStore.set(socket);
@@ -114,6 +113,7 @@
 	</div>
 </body>
 <slot />
+
 
 <style>
 	.Sidebar {
