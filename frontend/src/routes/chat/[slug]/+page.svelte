@@ -75,7 +75,7 @@
 					...msg,
 					timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
 				}));
-				recentUserRead = data.data.recentUserRead[userId];
+				recentUserRead = data.data.recentUserRead[receiverId];
 				console.log(recentUserRead);
 			} else {
 				console.error('Failed to fetch room messages: ', data.message);
