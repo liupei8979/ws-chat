@@ -26,26 +26,45 @@
 			userId = JSON.parse(userProfileString).email;
 		}
 	});
+
 	onMount(() => {
+		if (socket) {
+			socket.on('updateChatLobbyStatus', (data) => {
+				// 서버로부터 받은 데이터 처리
+				console.log('User Chat:', data);
+				sessionStorage.setItem('userChatData', JSON.stringify(data));
+				updateChatRooms(data);
+			});
+		}
+
+		loadChatRooms();
+	});
+
+
+	function loadChatRooms() {
 		if (typeof window !== 'undefined') {
 			const userChatDataString = sessionStorage.getItem('userChatData');
 			if (userChatDataString) {
 				const userChatData = JSON.parse(userChatDataString);
+				updateChatRooms(userChatData);
+			}
+		}
+	}
 
-				chatRooms = userChatData.payload.rooms
-					.map((room: any) => ({
+	function updateChatRooms(userChatData:any) {
+		chatRooms = userChatData.payload.rooms
+			.map((room: any) => ({
 						title: room.title,
 						roomId: room.roomId,
 						name: room.recentMsg.senderId,
-						timestamp: room.recentMsg.timestamp, // 원본 타임스탬프 저장
+						timestamp: room.recentMsg.timestamp, 
 						date: new Date(room.recentMsg.timestamp).toLocaleDateString(),
 						preview: room.recentMsg.content,
 						unreadMessages: room.userUnread
-					}))
-					.sort((a: ChatRoom, b: ChatRoom) => b.timestamp - a.timestamp);
-			}
-		}
-	});
+			}))
+			.sort((a: ChatRoom, b: ChatRoom) => b.timestamp - a.timestamp);
+	}
+
 	function openChattingWindow() {
 		isChattingWindowOpen = true;
 	}
@@ -77,7 +96,7 @@
 					goto(`/chat/${response.payload.roomId}`);
 				} else {
 					console.error('Failed to create room:', response);
-					// 실패 처리 로직을 여기에 구현합니다.
+					//실패
 				}
 			};
 
@@ -95,8 +114,6 @@
 			const room = userChatData.payload.rooms.find((room: any) => room.roomId === roomId);
 
 			if (room) {
-				// 이 부분은 실제 사용자 ID와 상대방 ID를 어떻게 구분하는지에 따라 다를 수 있습니다.
-				// 예시에서는 recentMsg의 senderId와 receiverId를 사용합니다.
 				chatSession.set({
 					title: room.title,
 					userId: userId,
@@ -118,7 +135,7 @@
 		isChattingWindowOpen = false;
 	}
 
-	$: filteredChatRooms = chatRooms.filter((room: ChatRoom) =>
+	$: filteredChatRooms = chatRooms.filter((room) =>
 		room.title.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 </script>
