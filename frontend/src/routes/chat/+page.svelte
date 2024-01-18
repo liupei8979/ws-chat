@@ -55,7 +55,7 @@
 		createOrJoinRoom(receiverId);
 		isChattingWindowOpen = false;
 	}
-	
+
 	function createOrJoinRoom(receiverId: string) {
 		if (socket && userId && receiverId) {
 			console.log('Calling socket.emit with:', { userId, receiverId });
@@ -119,7 +119,7 @@
 	}
 
 	$: filteredChatRooms = chatRooms.filter((room: ChatRoom) =>
-	room.title.toLowerCase().includes(searchQuery.toLowerCase())
+		room.title.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 </script>
 
