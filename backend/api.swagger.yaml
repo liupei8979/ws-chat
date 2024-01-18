@@ -267,8 +267,8 @@ paths:
           required: true
           schema:
             type: integer
-            default: 1
-          description: 페이지번호(기본값-1)
+            default: 0
+          description: 페이지번호(기본값-0)
       responses:
         '200':
           description: 채팅 정보 조회 성공
