@@ -40,7 +40,6 @@
 		loadChatRooms();
 	});
 
-
 	function loadChatRooms() {
 		if (typeof window !== 'undefined') {
 			const userChatDataString = sessionStorage.getItem('userChatData');
@@ -51,16 +50,16 @@
 		}
 	}
 
-	function updateChatRooms(userChatData:any) {
+	function updateChatRooms(userChatData: any) {
 		chatRooms = userChatData.payload.rooms
 			.map((room: any) => ({
-						title: room.title,
-						roomId: room.roomId,
-						name: room.recentMsg.senderId,
-						timestamp: room.recentMsg.timestamp, 
-						date: new Date(room.recentMsg.timestamp).toLocaleDateString(),
-						preview: room.recentMsg.content,
-						unreadMessages: room.userUnread
+				title: room.title,
+				roomId: room.roomId,
+				name: room.recentMsg.senderId,
+				timestamp: room.recentMsg.timestamp,
+				date: new Date(room.recentMsg.timestamp).toLocaleDateString(),
+				preview: room.recentMsg.content,
+				unreadMessages: room.userUnread
 			}))
 			.sort((a: ChatRoom, b: ChatRoom) => b.timestamp - a.timestamp);
 	}
