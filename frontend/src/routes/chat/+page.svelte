@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { writable } from 'svelte/store';
 	import { onMount, beforeUpdate } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { socketStore } from '$lib/stores/socketStore';
@@ -11,7 +12,7 @@
 
 	let socket: Socket | null = null;
 	let isChattingWindowOpen = false;
-
+	const userChatDataString = writable(sessionStorage.getItem('userChatData'));
 	socketStore.subscribe((value) => {
 		socket = value;
 	});
@@ -26,6 +27,23 @@
 			userId = JSON.parse(userProfileString).email;
 		}
 	});
+
+	// $: {
+	//     const chatData = $userChatDataString;
+	//     if (chatData) {
+	//         const userChatData = JSON.parse(chatData);
+	//         chatRooms = userChatData.payload.rooms.map((room) => {
+	//             return {
+	//                 title: room.title,
+	//                 roomId: room.roomId,
+	//                 name: room.recentMsg.senderId,
+	//                 date: new Date(room.recentMsg.timestamp).toLocaleDateString(),
+	//                 preview: room.recentMsg.content,
+	//                 unreadMessages: room.userUnread
+	//             };
+	//         });
+	//     }
+	// }
 
 	onMount(() => {
 		// 세션 스토리지에서 userChatData 가져오기
@@ -116,6 +134,10 @@
 
 	function handleCloseChattingWindow() {
 		isChattingWindowOpen = false;
+	}
+	function updateChatData(newChatData) {
+		sessionStorage.setItem('userChatData', JSON.stringify(newChatData));
+		userChatDataString.set(sessionStorage.getItem('userChatData'));
 	}
 </script>
 
