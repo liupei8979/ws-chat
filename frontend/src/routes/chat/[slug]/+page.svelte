@@ -23,10 +23,12 @@
 	let messages: Message[] = [];
 	let roomId: string = $page.params.slug;
 	let chatContainer: HTMLElement | null = null;
+	let recentUserRead = 0;
 
 	onMount(() => {
 		fetchRoomMessages();
 		if (socket) {
+			socket.emit('readRoom', { userId, roomId });
 			socket.on('receiveMessage', (response) => {
 				if (response.success && response.payload.timestamp) {
 					const newMessage = {
@@ -34,6 +36,12 @@
 						timestamp: new Date(response.payload.timestamp)
 					};
 					messages = [...messages, newMessage];
+				}
+				socket?.emit('readRoom', { userId, roomId });
+			});
+			socket.on('readRoomResponse', async (response) => {
+				if (response.success) {
+					await fetchRoomMessages();
 				}
 			});
 		}
@@ -67,6 +75,8 @@
 					...msg,
 					timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
 				}));
+				recentUserRead = data.data.recentUserRead[userId];
+				console.log(recentUserRead);
 			} else {
 				console.error('Failed to fetch room messages: ', data.message);
 			}
@@ -154,6 +164,9 @@
 				<div class="bubble">
 					<p>{message.content}</p>
 				</div>
+				{#if isSentByCurrentUser(message) && message.msgSeq !== undefined && message.msgSeq <= recentUserRead}
+					<span class="read-receipt">read</span>
+				{/if}
 				<span class="timestamp">
 					{new Date(message.timestamp || Date.now()).toLocaleTimeString([], {
 						hour: '2-digit',
