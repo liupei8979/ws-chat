@@ -14,8 +14,6 @@ type UserProfile = {
 let userProfile: UserProfile;
 
 class UserService {
-	baseUrl = 'http://localhost:3003';
-
 	getHeaders() {
 		const token = sessionStorage.getItem('token');
 		return {
@@ -26,9 +24,12 @@ class UserService {
 
 	// 유저 정보 조회
 	async getProfile(): Promise<UserProfile> {
-		const response = await fetch(`${this.baseUrl}/user/main`, {
-			headers: this.getHeaders()
-		});
+		const response = await fetch(
+			`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/user/main`,
+			{
+				headers: this.getHeaders()
+			}
+		);
 		if (!response.ok) {
 			throw new Error('Failed to fetch profile');
 		}
@@ -42,7 +43,7 @@ class UserService {
 	// 친구 요청 보내기
 	// async sendFriendRequest(friendId: string): Promise<void> {
 	// 	try {
-	// 		const response = await fetch(`${this.baseUrl}/api/friends/requests/${friendId}`, {
+	// 		const response = await fetch(`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/api/friends/requests/${friendId}`, {
 	// 			method: 'POST',
 	// 			headers: this.getHeaders()
 	// 		});
@@ -56,11 +57,14 @@ class UserService {
 
 	// 친구 요청 수락
 	async updateProfile(username: string, statusMessage: string): Promise<void> {
-		const response = await fetch(`${this.baseUrl}/user/profile`, {
-			method: 'PATCH',
-			headers: this.getHeaders(),
-			body: JSON.stringify({ username, statusMessage })
-		});
+		const response = await fetch(
+			`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/user/profile`,
+			{
+				method: 'PATCH',
+				headers: this.getHeaders(),
+				body: JSON.stringify({ username, statusMessage })
+			}
+		);
 		if (!response.ok) {
 			throw new Error('Failed to accept friend request');
 		}

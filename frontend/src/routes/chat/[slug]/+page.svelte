@@ -47,12 +47,15 @@
 		}
 
 		try {
-			const response = await fetch(`http://localhost:3003/room/${roomId}?page=0`, {
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${token}`
+			const response = await fetch(
+				`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/room/${roomId}?page=0`,
+				{
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${token}`
+					}
 				}
-			});
+			);
 
 			if (!response.ok) {
 				throw new Error('Failed to fetch room messages');

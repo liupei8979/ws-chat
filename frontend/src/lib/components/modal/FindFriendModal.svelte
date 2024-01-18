@@ -12,14 +12,17 @@
 		const accessToken = sessionStorage.getItem('token');
 		if (accessToken && userId) {
 			try {
-				const response = await fetch('http://localhost:3003/user/friend', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${accessToken}`
-					},
-					body: JSON.stringify({ email: userId })
-				});
+				const response = await fetch(
+					`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/user/friend`,
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							Authorization: `Bearer ${accessToken}`
+						},
+						body: JSON.stringify({ email: userId })
+					}
+				);
 
 				if (response.ok) {
 					window.location.href = redirectUrl; // 성공 시 리디렉트

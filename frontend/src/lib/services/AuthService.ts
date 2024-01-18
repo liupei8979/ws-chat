@@ -12,18 +12,18 @@
 // };
 
 class AuthService {
-	// Base URL for the API
-	baseUrl = 'http://localhost:3003';
-
 	async login(email: string, password: string): Promise<string> {
 		try {
-			const response = await fetch(`${this.baseUrl}/auth/signin`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ email, password })
-			});
+			const response = await fetch(
+				`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/auth/signin`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ email, password })
+				}
+			);
 
 			if (!response.ok) {
 				throw new Error('Login failed');
@@ -43,13 +43,16 @@ class AuthService {
 
 	async signup(username: string, email: string, password: string) {
 		try {
-			const response = await fetch(`${this.baseUrl}/auth/signup`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({ username, email, password })
-			});
+			const response = await fetch(
+				`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/auth/signup`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({ username, email, password })
+				}
+			);
 
 			if (!response.ok) {
 				throw new Error('Signup failed');

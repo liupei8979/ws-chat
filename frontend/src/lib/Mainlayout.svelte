@@ -57,7 +57,7 @@
 				const userProfile = JSON.parse(userProfileString);
 				// const userId = encodeURIComponent(userProfile.email);
 
-				socket = io('http://localhost:3030/chat', {
+				socket = io(`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_WS_PORT}/chat`, {
 					transports: ['websocket'],
 					query: {
 						accessToken: `Bearer ${accessToken}`
