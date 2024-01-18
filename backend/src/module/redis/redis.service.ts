@@ -86,7 +86,7 @@ export class RedisService {
     }
   }
 
-  async getRoomToUser(roomId: string): Promise<string[] | null> {
+  async getRoomToUser(roomId: string): Promise<string[]> {
     const data = await this.pubClient.get(`roomToUser:${roomId}`)
     return data ? JSON.parse(data) : []
   }
@@ -233,6 +233,7 @@ export class RedisService {
         totalUnread += userUnread
         return {
           roomId: roomId,
+          title: '',
           userUnread: userUnread,
           recentMsg: roomRecentMsg,
         }
@@ -243,5 +244,19 @@ export class RedisService {
       totalUnread: totalUnread,
       rooms: roomStatus,
     }
+  }
+
+  async leaveRoom(userId: string, roomId: string): Promise<boolean> {
+    await this.removeRoomToUser(roomId, userId)
+    await this.removeUserToRoom(userId, roomId)
+    await this.removeUserRecentReadSeq(userId, roomId)
+    if ((await this.getRoomToUser(roomId)).length === 0) {
+      await this.removeRoomRecentMsg(roomId)
+      await this.removeRoomRecentSeq(roomId)
+      // 방에 아무도 없으면 방 삭제
+      return true
+    }
+    // 방에 사람 남아있으면 false.
+    return false
   }
 }

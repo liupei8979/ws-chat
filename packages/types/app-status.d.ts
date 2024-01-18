@@ -10,6 +10,7 @@ export interface ChatRoomStatus {}
 
 export interface ChatLobbyRoomStatus {
   roomId: string
+  title: string
   userUnread: number
   recentMsg: Message
 }

@@ -1,5 +1,5 @@
 import { BaseWsExceptionFilter } from '@nestjs/websockets'
-import { SocketException } from '../../common/socket.exception'
+import { SocketException } from 'src/common/socket.exception'
 import { ArgumentsHost, Catch, Logger } from '@nestjs/common'
 import { Socket } from 'socket.io'
 

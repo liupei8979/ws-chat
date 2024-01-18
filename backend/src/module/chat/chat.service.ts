@@ -58,6 +58,19 @@ export class ChatService {
     return roomId
   }
 
+  async leaveRoom(userId: string, roomId: string): Promise<boolean> {
+    const isEmpty = await this.redisService.leaveRoom(userId, roomId)
+    if (isEmpty) {
+      // 채팅방 지우기 전에 하위 메시지 doc 전부 삭제 후 메시지 지우기
+      const messagesRef = this.roomCollection.doc(roomId).collection('messages')
+      const messagesSnapshot = await messagesRef.get()
+      await Promise.all(messagesSnapshot.docs.map((doc) => doc.ref.delete()))
+      await this.roomCollection.doc(roomId).delete()
+    }
+    this.logger.log(`User ${userId} leave room ${roomId}`)
+    return true
+  }
+
   async sendMessage(
     data: InMessageDto,
   ): Promise<{ msgWithSeq: OutMessageDto; userClientList: string[] }> {
@@ -100,6 +113,31 @@ export class ChatService {
   }
 
   async getChatLobbyStatus(userId: string): Promise<ChatLobbyStatus> {
-    return await this.redisService.getChatLobbyStatus(userId)
+    const lobbyStatus = await this.redisService.getChatLobbyStatus(userId)
+
+    // db에서 title 조회해서 있으면 해당 title(단체톡), 없으면 상대방 이름전달.
+    lobbyStatus.rooms
+    this.roomCollection.doc()
+
+    for (const room of lobbyStatus.rooms) {
+      const roomDocRef = this.roomCollection.doc(room.roomId)
+      const roomDoc = await roomDocRef.get()
+
+      if (roomDoc.exists) {
+        const roomData = roomDoc.data()
+        if (roomData && roomData.title) {
+          room.title = roomData.title
+        } else {
+          const otherMemberId = roomData.members.find(
+            (memberId) => memberId !== userId,
+          )
+          room.title = (
+            await this.usersCollection.doc(otherMemberId).get()
+          ).data()?.username
+        }
+      }
+    }
+
+    return lobbyStatus
   }
 }
