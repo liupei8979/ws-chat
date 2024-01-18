@@ -16,6 +16,7 @@
 		socket = value;
 	});
 	let isSending = false; // 메시지 전송 중인지 확인하는 플래그
+	let title: string = get(chatSession).title;
 	let userId: string = get(chatSession).userId;
 	let receiverId: string = get(chatSession).receiverId;
 	let messageContent = '';
@@ -142,7 +143,7 @@
 		<button type="button" on:click={goBack}>
 			<i class="fas fa-arrow-left" />
 		</button>
-		<span>방 이름</span>
+		<span>{title}</span>
 	</div>
 	<div class="Chatting" bind:this={chatContainer}>
 		{#each messages as message (message.msgId)}
@@ -150,7 +151,9 @@
 				<div class="bubble">
 					<p>{message.content}</p>
 				</div>
-				<span class="timestamp">{new Date(message.timestamp).toLocaleTimeString()}</span>
+				<span class="timestamp">
+					{new Date(message.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+				</span>		
 			</div>
 		{/each}
 	</div>

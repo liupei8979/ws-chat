@@ -6,18 +6,19 @@
 	import Mainlayout from '$lib/Mainlayout.svelte';
 	import NewChattingModal from '$lib/components/modal/NewChattingModal.svelte';
 	import { chatSession } from '$lib/stores/ChatStore';
-	import type { CreateRoomResponse } from './index';
+	import type { CreateRoomResponse, ChatRoom } from './index';
 	import './chat.css';
 
 	let socket: Socket | null = null;
 	let isChattingWindowOpen = false;
+	
 
 	socketStore.subscribe((value) => {
 		socket = value;
 	});
 	let userId: string;
 	// 더미 데이터 정의
-	let chatRooms = [];
+	let chatRooms: ChatRoom[] = [];
 
 	beforeUpdate(() => {
 		const userProfileString = sessionStorage.getItem('userProfile');
@@ -36,6 +37,7 @@
 			// 채팅방 데이터를 chatRooms 배열로 변환
 			chatRooms = userChatData.payload.rooms.map((room) => {
 				return {
+					title : room.title,
 					roomId: room.roomId,
 					name: room.recentMsg.senderId, // 채팅방 이름 (예: senderId)
 					date: new Date(room.recentMsg.timestamp).toLocaleDateString(), // 날짜 변환
@@ -66,6 +68,7 @@
 			const createRoomResponseHandler = (response: CreateRoomResponse) => {
 				if (response.success) {
 					chatSession.set({
+						title: "임시 값",
 						userId: response.payload.userId,
 						receiverId: response.payload.receiverId,
 						roomId: response.payload.roomId,
@@ -86,7 +89,7 @@
 		}
 	}
 
-	function navigateToRoom(roomId) {
+	function navigateToRoom(roomId: string) {
 		const userChatDataString = sessionStorage.getItem('userChatData');
 		if (userChatDataString) {
 			const userChatData = JSON.parse(userChatDataString);
@@ -96,6 +99,7 @@
 				// 이 부분은 실제 사용자 ID와 상대방 ID를 어떻게 구분하는지에 따라 다를 수 있습니다.
 				// 예시에서는 recentMsg의 senderId와 receiverId를 사용합니다.
 				chatSession.set({
+					title: room.title,
 					userId: userId,
 					receiverId: room.recentMsg.receiverId,
 					roomId: roomId,
@@ -132,13 +136,13 @@
 	</div>
 	<div class="MainContent">
 		{#each chatRooms as chatRoom}
-			<li on:click={() => navigateToRoom(chatRoom.roomId)}>
+		<li class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
 				<img
 					src={chatRoom.imgSrc || '../../src/asset/img/base_profile.jpg'}
 					alt={chatRoom.name || 'Profile Image'}
 				/>
 				<p class="room-block-top">
-					<b>{chatRoom.roomId}</b>
+					<b>{chatRoom.title}</b>
 					<span>{chatRoom.date}</span>
 					{#if chatRoom.unreadMessages > 0}
 						<span class="unread-messages">{chatRoom.unreadMessages}</span>
