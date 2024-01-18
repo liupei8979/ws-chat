@@ -26,25 +26,24 @@
 		if (userProfileString) {
 			userId = JSON.parse(userProfileString).email;
 		}
-		
 	});
-	
-    // $: {
-    //     const chatData = $userChatDataString;
-    //     if (chatData) {
-    //         const userChatData = JSON.parse(chatData);
-    //         chatRooms = userChatData.payload.rooms.map((room) => {
-    //             return {
-    //                 title: room.title,
-    //                 roomId: room.roomId,
-    //                 name: room.recentMsg.senderId,
-    //                 date: new Date(room.recentMsg.timestamp).toLocaleDateString(),
-    //                 preview: room.recentMsg.content,
-    //                 unreadMessages: room.userUnread
-    //             };
-    //         });
-    //     }
-    // }
+
+	// $: {
+	//     const chatData = $userChatDataString;
+	//     if (chatData) {
+	//         const userChatData = JSON.parse(chatData);
+	//         chatRooms = userChatData.payload.rooms.map((room) => {
+	//             return {
+	//                 title: room.title,
+	//                 roomId: room.roomId,
+	//                 name: room.recentMsg.senderId,
+	//                 date: new Date(room.recentMsg.timestamp).toLocaleDateString(),
+	//                 preview: room.recentMsg.content,
+	//                 unreadMessages: room.userUnread
+	//             };
+	//         });
+	//     }
+	// }
 
 	onMount(() => {
 		// 세션 스토리지에서 userChatData 가져오기
@@ -137,10 +136,9 @@
 		isChattingWindowOpen = false;
 	}
 	function updateChatData(newChatData) {
-    sessionStorage.setItem('userChatData', JSON.stringify(newChatData));
-    userChatDataString.set(sessionStorage.getItem('userChatData'));
-}
-
+		sessionStorage.setItem('userChatData', JSON.stringify(newChatData));
+		userChatDataString.set(sessionStorage.getItem('userChatData'));
+	}
 </script>
 
 <Mainlayout>
