@@ -17,28 +17,32 @@
 	});
 	let userId: string;
 	// 더미 데이터 정의
-	const chatRooms = [
-		{
-			name: 'Room 1',
-			date: '2024-01-16',
-			imgSrc: '../../src/asset/img/base_profile.jpg',
-			preview: 'Last message in Room 1',
-			unreadMessages: 3 // 안 읽은 메시지 수
-		},
-		{
-			name: 'Room 2',
-			date: '2024-01-15',
-			imgSrc: '../../src/asset/img/base_profile.jpg',
-			preview: 'Last message in Room 2',
-			unreadMessages: 5 // 안 읽은 메시지 수
-		}
-	];
+	let chatRooms = [];
 
 	beforeUpdate(() => {
 		const userProfileString = sessionStorage.getItem('userProfile');
 
 		if (userProfileString) {
 			userId = JSON.parse(userProfileString).email;
+		}
+	});
+
+	onMount(() => {
+		// 세션 스토리지에서 userChatData 가져오기
+		const userChatDataString = sessionStorage.getItem('userChatData');
+		if (userChatDataString) {
+			const userChatData = JSON.parse(userChatDataString);
+
+			// 채팅방 데이터를 chatRooms 배열로 변환
+			chatRooms = userChatData.payload.rooms.map((room) => {
+				return {
+					roomId: room.roomId,
+					name: room.recentMsg.senderId, // 채팅방 이름 (예: senderId)
+					date: new Date(room.recentMsg.timestamp).toLocaleDateString(), // 날짜 변환
+					preview: room.recentMsg.content, // 최근 메시지 내용
+					unreadMessages: room.userUnread // 안 읽은 메시지 수
+				};
+			});
 		}
 	});
 
@@ -82,6 +86,31 @@
 		}
 	}
 
+	function navigateToRoom(roomId) {
+		const userChatDataString = sessionStorage.getItem('userChatData');
+		if (userChatDataString) {
+			const userChatData = JSON.parse(userChatDataString);
+			const room = userChatData.payload.rooms.find((room) => room.roomId === roomId);
+
+			if (room) {
+				// 이 부분은 실제 사용자 ID와 상대방 ID를 어떻게 구분하는지에 따라 다를 수 있습니다.
+				// 예시에서는 recentMsg의 senderId와 receiverId를 사용합니다.
+				chatSession.set({
+					userId: userId,
+					receiverId: room.recentMsg.receiverId,
+					roomId: roomId,
+					messages: [] // 필요에 따라 초기 메시지 설정
+				});
+
+				goto(`/chat/${roomId}`);
+			} else {
+				console.error('Chat room not found');
+			}
+		} else {
+			console.error('User chat data not found in sessionStorage');
+		}
+	}
+
 	function handleCloseChattingWindow() {
 		isChattingWindowOpen = false;
 	}
@@ -103,10 +132,13 @@
 	</div>
 	<div class="MainContent">
 		{#each chatRooms as chatRoom}
-			<li>
-				<img src={chatRoom.imgSrc} alt={chatRoom.name || 'Profile Image'} />
+			<li on:click={() => navigateToRoom(chatRoom.roomId)}>
+				<img
+					src={chatRoom.imgSrc || '../../src/asset/img/base_profile.jpg'}
+					alt={chatRoom.name || 'Profile Image'}
+				/>
 				<p class="room-block-top">
-					<b>{chatRoom.name}</b>
+					<b>{chatRoom.roomId}</b>
 					<span>{chatRoom.date}</span>
 					{#if chatRoom.unreadMessages > 0}
 						<span class="unread-messages">{chatRoom.unreadMessages}</span>

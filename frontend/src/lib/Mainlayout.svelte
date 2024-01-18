@@ -2,11 +2,10 @@
 	import { onMount, beforeUpdate, setContext } from 'svelte';
 	import { socketStore } from '$lib/stores/socketStore';
 	import io, { Socket } from 'socket.io-client';
-	import type { UserChatInitial } from '../../../packages/types/ws-response';
 
 	let pathname = '';
 	let socket: Socket;
-
+	let totalUnread = 0;
 	const btns = [
 		{
 			title: 'friends',
@@ -33,6 +32,7 @@
 		if (confirm('로그아웃 하시겠습니까?')) {
 			sessionStorage.removeItem('token');
 			sessionStorage.removeItem('userProfile');
+			sessionStorage.removeItem('userChatData');
 			navigateTo('/');
 		}
 	}
@@ -47,7 +47,7 @@
 		location.href = route;
 	}
 
-	onMount(() => {
+	beforeUpdate(() => {
 		pathname = window.location.pathname;
 		console.log('Current URL:', pathname);
 		if (typeof window !== 'undefined' && sessionStorage.getItem('token')) {
@@ -69,12 +69,17 @@
 					console.log('Connected to the chat server', socket.id);
 					socketStore.set(socket);
 					// 서버로부터 받은 데이터 처리
-					socket.on('connectResponse', (data: UserChatInitial) => {
+					socket.on('updateChatLobbyStatus', (data) => {
 						console.log('User Chat Data:', data);
-						// 여기서 data를 사용하여 UI 업데이트 등의 로직 수행
+						sessionStorage.setItem('userChatData', JSON.stringify(data));
 					});
 				});
 			}
+		}
+		const userChatDataString = sessionStorage.getItem('userChatData');
+		if (userChatDataString) {
+			const userChatData = JSON.parse(userChatDataString);
+			totalUnread = userChatData.payload.totalUnread || 0;
 		}
 	});
 </script>
@@ -97,9 +102,9 @@
 							{:else}
 								<i class={`${btn.url} Icon`}></i>
 							{/if}
-							{#if btn.title === 'chatting'}
-								<!-- unreadMessages 는 값을 받아와서 적용시켜야됨 임의로 숫자 넣어둠-->
-								<span class="unreadMessages">3</span>
+							{#if btn.title === 'chatting' && totalUnread > 0}
+								<!-- totalUnread가 0보다 크면 숫자 표시 -->
+								<span class="unreadMessages">{totalUnread}</span>
 							{/if}
 						</div>
 					</div>
