@@ -114,7 +114,6 @@
 </body>
 <slot />
 
-
 <style>
 	.Sidebar {
 		position: fixed;
