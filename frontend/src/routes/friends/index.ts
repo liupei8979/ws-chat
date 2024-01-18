@@ -18,6 +18,7 @@ export interface CreateRoomResponse {
 		roomId: string;
 		userId: string;
 		receiverId: string;
+		title: string;
 		// 기타 필요한 필드들...
 	};
 	// 에러 메시지나 기타 필드들...

@@ -68,7 +68,7 @@
 			const createRoomResponseHandler = (response: CreateRoomResponse) => {
 				if (response.success) {
 					chatSession.set({
-						title: '임시 값',
+						title: response.payload.title,
 						userId: response.payload.userId,
 						receiverId: response.payload.receiverId,
 						roomId: response.payload.roomId,
