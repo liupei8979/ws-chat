@@ -97,7 +97,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="scss">
 	.Wrapper {
 		position: fixed;
 		top: 30%;
@@ -113,60 +113,68 @@
 		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 		overflow: hidden;
 		z-index: 10000;
-	}
-	.BackgroundBase {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background-color: #848b91;
-		z-index: -1;
-		overflow: hidden;
-		& img {
+
+		.BackgroundBase {
+			position: absolute;
+			top: 0;
+			left: 0;
 			width: 100%;
 			height: 100%;
-			object-fit: cover;
-			opacity: 0.6;
+			background-color: #848b91;
+			z-index: -1;
+			overflow: hidden;
+
+			img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				opacity: 0.6;
+			}
 		}
-	}
-	.profile-container {
-		margin-top: 300px;
-	}
-	.ProfileImage {
-		width: 100px;
-		height: 100px;
-		border-radius: 20px;
-		margin-top: 30px;
-		object-fit: cover;
-		cursor: pointer;
-	}
-	.ProfileName {
-		font-size: 24px;
-		color: #fff;
-		margin: 10px 0;
-	}
-	.ProfileStatusMessage {
-		font-size: 18px;
-		color: #fff;
-		margin-bottom: 30px;
-	}
-	.icon-button {
-		background: none;
-		border: none;
-		cursor: pointer;
-		position: absolute;
-		top: 15px;
-		right: 15px;
-		font-size: 20px;
-		color: #fff;
-		z-index: 100;
-	}
-	input[type='text'] {
-		width: 70%; /* 너비 조정 */
-		padding: 2px;
-		margin: 10px 0; /* 상하 여백 */
-		border: 1px solid #ddd;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 그림자 추가 */
+
+		.profile-container {
+			margin-top: 300px;
+		}
+
+		.ProfileImage {
+			width: 100px;
+			height: 100px;
+			border-radius: 20px;
+			margin-top: 30px;
+			object-fit: cover;
+			cursor: pointer;
+		}
+
+		.ProfileName {
+			font-size: 24px;
+			color: #fff;
+			margin: 10px 0;
+		}
+
+		.ProfileStatusMessage {
+			font-size: 18px;
+			color: #fff;
+			margin-bottom: 30px;
+		}
+
+		.icon-button {
+			background: none;
+			border: none;
+			cursor: pointer;
+			position: absolute;
+			top: 15px;
+			right: 15px;
+			font-size: 20px;
+			color: #fff;
+			z-index: 100;
+		}
+
+		input[type='text'] {
+			width: 70%; // 너비 조정
+			padding: 2px;
+			margin: 10px 0; // 상하 여백
+			border: 1px solid #ddd;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); // 그림자 추가
+		}
 	}
 </style>

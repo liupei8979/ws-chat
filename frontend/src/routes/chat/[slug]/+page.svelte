@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Message } from '@just-chat/types';
 	import { goto } from '$app/navigation';
-	import './chattingRoom.css';
+	import './chattingRoom.scss';
 	import { onMount } from 'svelte';
 	import io, { Socket } from 'socket.io-client';
 	import { socketStore } from '$lib/stores/socketStore';
@@ -164,15 +164,19 @@
 				<div class="bubble">
 					<p>{message.content}</p>
 				</div>
-				{#if isSentByCurrentUser(message) && message.msgSeq !== undefined && message.msgSeq <= recentUserRead}
-					<span class="read-receipt">read</span>
-				{/if}
-				<span class="timestamp">
-					{new Date(message.timestamp || Date.now()).toLocaleTimeString([], {
-						hour: '2-digit',
-						minute: '2-digit'
-					})}
-				</span>
+				<div class="message-info">
+					{#if isSentByCurrentUser(message)}
+						<span class="read-receipt">
+							{message.msgSeq !== undefined && message.msgSeq <= recentUserRead ? '' : '1'}
+						</span>
+					{/if}
+					<span class="timestamp">
+						{new Date(message.timestamp || Date.now()).toLocaleTimeString([], {
+							hour: '2-digit',
+							minute: '2-digit'
+						})}
+					</span>
+				</div>
 			</div>
 		{/each}
 	</div>

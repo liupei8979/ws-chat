@@ -10,7 +10,6 @@
 // 	token: string;
 // 	user: User;
 // };
-
 class AuthService {
 	async login(email: string, password: string): Promise<string> {
 		try {
@@ -26,12 +25,11 @@ class AuthService {
 			);
 
 			if (!response.ok) {
-				throw new Error('Login failed');
+				const errorResponse = await response.json();
+				throw new Error(errorResponse.message || '로그인 실패');
 			}
 
 			const data = await response.json();
-
-			// Extract accessToken from the response
 			const accessToken = data.data.accessToken;
 
 			return accessToken;
@@ -55,7 +53,8 @@ class AuthService {
 			);
 
 			if (!response.ok) {
-				throw new Error('Signup failed');
+				const errorResponse = await response.json();
+				throw new Error(errorResponse.message || '회원가입 실패');
 			}
 		} catch (error) {
 			console.error('Signup error:', error);

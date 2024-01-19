@@ -1,14 +1,19 @@
+.Container {
+	width: 100%;
+	min-height: 100vh;
+	z-index: 10;
+}
+
 .MainHeader {
 	position: fixed;
 	top: 0;
-	left: 30px;
-	padding: 0px 20px 0px 120px;
-	width: 100%;
+	padding: 0px 20px 0px 150px;
+	width: calc(100% - 30px);
 	height: 100px;
 	background-color: #fff;
 	z-index: 1;
 
-	& input {
+	input {
 		border: none;
 		outline: none;
 		border-radius: 10px;
@@ -32,22 +37,22 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-}
 
-.icon-button i {
-	font-size: 20px;
+	i {
+		font-size: 20px;
+	}
 }
 
 .TitleBlock {
 	position: relative;
 
-	& h2 {
+	h2 {
 		font-size: 30px;
 		font-weight: bold;
 		margin-bottom: 10px;
 	}
 
-	& i {
+	i {
 		cursor: pointer;
 		font-size: 20px;
 		position: absolute;
@@ -59,21 +64,21 @@
 .MainContent {
 	position: absolute;
 	top: 116px;
-	margin-left: 110px;
+	left: 110px;
 	bottom: 5px;
-	width: 100%;
+	width: calc(100% - 110px);
 	overflow: auto;
 
-	& .chat-room-item {
+	.chat-room-item {
 		all: unset;
 		cursor: pointer;
 		display: block;
-		width: 90.5%;
+		width: 94%;
 		list-style-type: none;
-		padding: 8px 100px 10px 120px;
+		padding: 8px 5px 10px 115px;
 		position: relative;
 
-		& img {
+		img {
 			position: absolute;
 			top: 34px;
 			left: 45px;
@@ -83,7 +88,7 @@
 			cursor: pointer;
 		}
 
-		& p {
+		p {
 			color: #707070;
 			overflow: hidden;
 			text-overflow: ellipsis;
@@ -91,7 +96,7 @@
 			min-height: 19px;
 			font-size: 15px;
 
-			& b {
+			b {
 				color: #000;
 				font-weight: bold;
 				font-size: 20px;
@@ -102,17 +107,17 @@
 			background-color: #eaeaeb;
 		}
 
-		& .room-block-top {
+		.room-block-top {
 			position: relative;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
 			height: 45px;
 
-			& span {
+			span {
 				position: absolute;
 				top: 0;
-				right: 31px;
+				right: 35px;
 			}
 		}
 	}

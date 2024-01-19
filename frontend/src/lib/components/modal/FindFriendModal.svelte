@@ -78,7 +78,7 @@
 	{/if}
 </div>
 
-<style>
+<style lang="scss">
 	.Wrapper {
 		position: fixed;
 		left: 50%;
@@ -90,30 +90,35 @@
 		background-color: #fff;
 		z-index: 10000;
 		overflow: auto;
-		& h4 {
+
+		h4 {
 			padding: 25px 20px;
 			font-size: 18px;
 			font-weight: 600;
 		}
 
-		& form {
+		form {
 			width: 80%;
 			border-bottom: 2px solid #000;
 			margin: 30px auto;
-			& input {
+
+			input {
 				outline: none;
 				border: none;
 				width: 250px;
 			}
-			& span {
+
+			span {
 				position: fixed;
 			}
 		}
 	}
+
 	.Menu {
 		padding: 0 20px;
 		border-bottom: 1px solid #dcdcdc;
-		& span {
+
+		span {
 			display: inline-block;
 			font-size: 13px;
 			font-weight: bold;
@@ -121,6 +126,7 @@
 			padding: 10px 0;
 		}
 	}
+
 	.error-message {
 		color: #000;
 		text-align: center;
@@ -129,6 +135,7 @@
 		font-weight: bold;
 		padding: 10px;
 	}
+
 	.close-button {
 		background: none;
 		border: none;

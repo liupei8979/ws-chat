@@ -12,7 +12,7 @@
 	import { userService } from '$lib/services/UserService';
 	import { chatSession } from '$lib/stores/ChatStore';
 	import type { UserProfile, Friend, CreateRoomResponse } from '.';
-	import './friends.css';
+	import './friends.scss';
 	import {
 		isFindFriendModalOpen,
 		isMyProfileModalOpen,
