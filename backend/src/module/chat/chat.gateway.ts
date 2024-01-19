@@ -25,7 +25,7 @@ import { LobbyStatusDto } from './dto/lobby-status.dto'
 import { LeaveRoomRequestDto } from './dto/leave-room.dto'
 
 @UseFilters(SocketExceptionFilter)
-@WebSocketGateway(3030, { namespace: 'chat', cors: { origin: '*' } })
+@WebSocketGateway(3031, { namespace: 'chat', cors: { origin: '*' } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private logger: Logger = new Logger('ChatGateway')
 

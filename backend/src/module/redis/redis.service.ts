@@ -283,7 +283,10 @@ export class RedisService {
         clients,
       }
     } else {
-      return null
+      return {
+        roomSeq: null,
+        clients: null,
+      }
     }
   }
 }

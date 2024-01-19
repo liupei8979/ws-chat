@@ -11,6 +11,7 @@ import { UserDocument } from 'src/common/document/document.user'
 import { SignInDto } from './dto/\bsign-in.dto'
 import { SignUpDto } from './dto/sign-up.dto'
 import { createApiError } from 'src/utils/api-error.util'
+import { RedisService } from '../redis/redis.service'
 
 @Injectable()
 export class AuthService {
@@ -20,10 +21,18 @@ export class AuthService {
     @Inject(UserDocument.collectionName)
     private usersCollection: CollectionReference<UserDocument>,
     private jwtService: JwtService,
+    private redisService: RedisService,
   ) {}
 
   async signIn(signInDto: SignInDto): Promise<{ accessToken: string }> {
     const { email, password } = signInDto
+
+    if (await this.redisService.getUserToClient(email)) {
+      throw new HttpException(
+        createApiError('이미 로그인되어 있습니다.', 'BadRequest'),
+        HttpStatus.BAD_REQUEST,
+      )
+    }
 
     const userSnapshot = await this.usersCollection
       .where('email', '==', email)
