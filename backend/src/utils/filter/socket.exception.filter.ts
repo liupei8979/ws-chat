@@ -14,7 +14,9 @@ export class SocketExceptionFilter extends BaseWsExceptionFilter {
 
     // 클라이언트에 에러 메시지 전송
 
-    this.logger.log(`Client-id: ${client.id} - ${status} - ${message}`)
+    this.logger.error(`Client-id: ${client.id} - ${status} - ${message}`)
+    this.logger.log(exception.stack)
+
     client.emit('Exception', {
       success: false,
       statusCode: statusCode,

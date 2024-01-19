@@ -162,7 +162,7 @@
 				<button class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
 					<img
 						src={chatRoom.imgSrc || '../../src/asset/img/base_profile.jpg'}
-						alt={chatRoom.name || 'Profile Image'}
+						alt={chatRoom.name}
 					/>
 					<p class="room-block-top">
 						<b>{chatRoom.title}</b>

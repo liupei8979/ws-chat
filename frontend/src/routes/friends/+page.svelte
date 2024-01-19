@@ -120,10 +120,10 @@
 		<button class="MyProfileBlock" on:click={openMyProfileModal}>
 			<img
 				src={userProfile.imgSrc || '../../src/asset/img/base_profile.jpg'}
-				alt={userProfile.username || '기본 프로필 이미지'}
+				alt={userProfile.username}
 			/>
-			<p><b>{userProfile.username || '이름 없음'}</b></p>
-			<p>{userProfile.statusMessage || '상태 메시지 없음'}</p>
+			<p><b>{userProfile.username}</b></p>
+			<p>{userProfile.statusMessage || '.'}</p>
 		</button>
 		<div class="FriendsBorder">
 			<p>친구 {filteredFriendList.length}</p>
@@ -132,7 +132,7 @@
 			<button class="MyProfileBlock" on:click={() => openFriendsProfileModal(friend)}>
 				<img src={'../../src/asset/img/base_profile.jpg'} alt={friend.username} />
 				<p><b>{friend.username}</b></p>
-				<p>{friend.statusMessage || '상태 메시지 없음'}</p>
+				<p>{friend.statusMessage || '.'}</p>
 			</button>
 		{/each}
 	</div>

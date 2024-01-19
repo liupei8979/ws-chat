@@ -26,7 +26,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
       error: err.error,
     }
 
-    this.logger.log(`${status} ${errorResponse.error} ${errorResponse.message}`)
+    this.logger.error(
+      `${status} ${errorResponse.error} ${errorResponse.message}`,
+    )
+    this.logger.log(exception.stack)
+
     if (typeof err !== 'string' && err.statusCode === 400) {
       // class-validator 에러
       return response.status(status).json(errorResponse)
