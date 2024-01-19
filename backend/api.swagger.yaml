@@ -1,0 +1,468 @@
+openapi: 3.0.2
+info:
+  title: Just chatting
+  description: Just chatting app.
+  version: 1.0.0
+# servers:
+#   - url: https://petstore3.swagger.io/api/v3
+tags:
+  - name: auth
+    description: Authroization & Authentication
+  - name: user
+    description: User operation
+  - name: room
+    description: Room operation
+
+paths:
+  /auth/signup:
+    post:
+      tags:
+        - auth
+      summary: User Signup
+      description: Create a new user account.
+      operationId: signUp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpDto'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    statusCode: 201
+                    message: '회원가입에 성공하였습니다.'
+
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                emailExistsResponse:
+                  value:
+                    success: false
+                    statusCode: 409
+                    message: '이미 존재하는 이메일입니다.'
+                    error: 'Conflict'
+
+  /auth/signin:
+    post:
+      tags:
+        - auth
+      summary: User Signin
+      description: Sign in to an existing user account.
+      operationId: signIn
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentialsDto'
+      responses:
+        '200':
+          description: Sign in successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                successSignIn:
+                  value:
+                    success: true
+                    statusCode: 200
+                    message: '로그인에 성공하였습니다.'
+                    data:
+                      accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+        '401':
+          description: Unauthorized - Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                invalidCredentialsResponse:
+                  value:
+                    success: false
+                    statusCode: 401
+                    message: '인증 정보가 유효하지 않습니다.'
+                    error: 'Unauthorized'
+
+  /user/main:
+    get:
+      summary: 사용자 프로필(메인화면) 정보 조회
+      tags:
+        - user
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 프로필 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    statusCode: 200
+                    message: '프로필 조회에 성공하였습니다.'
+                    data:
+                      email: 'test1@gmail.com'
+                      statusMessage: ''
+                      friends:
+                        - email: 'test2@gmail.com'
+                          statusMessage: ''
+                          username: 'test2'
+                        - email: 'teset3@gmail.com'
+                          statusMessage: ''
+                          username: 'test3'
+        '404':
+          description: 사용자가 존재하지 않음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                notFoundResponse:
+                  value:
+                    success: false
+                    statusCode: 404
+                    message: '해당 유저가 존재하지 않습니다.'
+                    error: 'Not Found'
+
+  /user/friend:
+    post:
+      summary: 친구 추가
+      tags:
+        - user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddFriendDto'
+      responses:
+        '201':
+          description: 친구 추가 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    statusCode: 201
+                    message: '친구 추가에 성공하였습니다.'
+        '403':
+          description: 자기 자신을 친구로 추가할 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                forbiddenResponse:
+                  value:
+                    success: false
+                    statusCode: 403
+                    message: '자기 자신을 친구로 등록할 수 없습니다.'
+                    error: 'Forbidden'
+        '404':
+          description: 사용자가 존재하지 않음
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                notFoundResponse:
+                  value:
+                    success: false
+                    statusCode: 404
+                    message: '해당 유저가 존재하지 않습니다.'
+                    error: 'Not Found'
+        '409':
+          description: 이미 친구로 등록된 사용자
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                conflictResponse:
+                  value:
+                    success: false
+                    statusCode: 409
+                    message: '이미 친구로 등록된 유저입니다.'
+                    error: 'Conflict'
+
+  /user/profile:
+    patch:
+      summary: 사용자 프로필 수정
+      tags:
+        - user
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditProfileDto'
+      responses:
+        '200':
+          description: 프로필 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    statusCode: 200
+                    message: '프로필 수정에 성공하였습니다.'
+        '404':
+          description: 사용자가 존재하지 않음
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                notFoundResponse:
+                  value:
+                    success: false
+                    statusCode: 404
+                    message: '해당 유저가 존재하지 않습니다.'
+                    error: 'Not Found'
+
+  /room/{roomId}:
+    get:
+      summary: 대화방 채팅정보 조회
+      tags:
+        - room
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: roomId
+          required: true
+          schema:
+            type: string
+          description: 조회하고자 하는 채팅방의 ID
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: integer
+            default: 0
+          description: 페이지번호(기본값-0)
+      responses:
+        '200':
+          description: 채팅 정보 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoomInfoDto'
+              examples:
+                successResponse:
+                  value:
+                    success: true
+                    statusCode: 200
+                    message: '채팅 정보 조회에 성공하였습니다.'
+                    data:
+                      roomId: 'exampleRoomId'
+                      title: 'Example Room'
+                      members:
+                        - userId: 'test1@gmail.com'
+                          username: 'test1'
+                        - userId: 'test2@gmail.com'
+                          username: 'test2'
+                      recentMsgSeq: 123
+                      messages:
+                        - msgId: 'msg123'
+                          msgSeq: 123
+                          senderId: 'user1'
+                          receiverId: 'user2'
+                          content: 'Hello!'
+                          timestamp: 1625217395000
+                          roomId: 'exampleRoomId'
+                      recentUserRead: { 'user1': 120, 'user2': 123 }
+                      isFriend: true
+        '404':
+          description: 해당 채팅방이 존재하지 않습니다.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiError'
+              examples:
+                notFoundResponse:
+                  value:
+                    success: false
+                    statusCode: 404
+                    message: '해당 채팅방이 존재하지 않습니다.'
+                    error: 'Not Found'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    SignUpDto:
+      type: object
+      required:
+        - email
+        - password
+        - username
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        username:
+          type: string
+
+    AuthCredentialsDto:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    ApiResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        statusCode:
+          type: integer
+        message:
+          type: string
+        data:
+          type: object
+          nullable: true
+
+    ApiError:
+      type: object
+      properties:
+        success:
+          type: boolean
+        statusCode:
+          type: integer
+        message:
+          type: string
+        error:
+          type: string
+
+    EditProfileDto:
+      type: object
+      required:
+        - username
+        - statusMessage
+      properties:
+        username:
+          type: string
+          example: new_username
+        statusMessage:
+          type: string
+          example: Hello World!
+
+    UserMainDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: user@example.com
+        username:
+          type: string
+          example: username
+        statusMessage:
+          type: string
+          example: Status message here
+        friends:
+          type: array
+          items:
+            type: string
+
+    AddFriendDto:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          example: user
+
+    RoomInfoDto:
+      type: object
+      properties:
+        roomId:
+          type: string
+          example: 'exampleRoomId'
+        title:
+          type: string
+          example: 'Example Room'
+        members:
+          type: array
+          items:
+            type: string
+          example: ['user1', 'user2']
+        recentMsgSeq:
+          type: integer
+          example: 123
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+        recentUserRead:
+          type: object
+          additionalProperties:
+            type: integer
+          example: { 'user1': 120, 'user2': 123 }
+
+    Message:
+      type: object
+      properties:
+        msgId:
+          type: string
+          example: 'msg123'
+        msgSeq:
+          type: integer
+          example: 123
+        senderId:
+          type: string
+          example: 'user1'
+        receiverId:
+          type: string
+          example: 'user2'
+        content:
+          type: string
+          example: 'Hello!'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1625217395000
+        roomId:
+          type: string
+          example: 'exampleRoomId'

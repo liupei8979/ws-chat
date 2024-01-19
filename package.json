@@ -1,0 +1,45 @@
+{
+  "name": "just-chat",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "prepare": "husky install",
+    "start": "pnpm --stream -r start",
+    "start:dev": "pnpm --parallel --stream -r start:dev",
+    "build": "pnpm --stream -r run build",
+    "clean": "rm -rf .parcel-cache && pnpm -r run clean",
+    "backend": "pnpm --filter backend",
+    "frontend": "pnpm --filter frontend",
+    "packages": "pnpm --filter packages",
+    "dev": "pnpm --parallel --stream -r dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=21.x"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@commitlint/cli": "^18.4.4",
+    "@commitlint/config-conventional": "^18.4.4",
+    "@typescript-eslint/eslint-plugin": "^6.18.1",
+    "@typescript-eslint/parser": "^6.18.1",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.2.2"
+  },
+  "lint-staged": {
+    "**/*.{js,ts,tsx}": [
+      "eslint --fix"
+    ],
+    "**/*": "prettier --write --ignore-unknown"
+  }
+}
