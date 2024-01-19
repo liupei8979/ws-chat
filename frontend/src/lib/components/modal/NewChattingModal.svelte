@@ -60,7 +60,7 @@
 	</div>
 </div>
 
-<style>
+<style lang="scss">
 	.Wrapper {
 		position: relative;
 		transform: translate(-50%, 0);
@@ -70,63 +70,73 @@
 		color: #000;
 		background: #fff;
 		overflow: hidden;
-	}
-	.HeaderWrapper {
-		width: 100%;
-		height: 50px;
-		font-size: 18px;
-		text-align: center;
-		border-bottom: 1px solid #dcdcdc;
-	}
-	.ContentWrapper {
-		width: 100%;
-	}
-	.UserItem {
-		display: flex;
-		align-items: center;
-		padding: 15px;
-		font-size: 18px;
-		cursor: pointer;
-		border: none;
-		background: none;
-		border-bottom: 1px solid #f0f0f0;
-		text-align: left;
-		width: 100%;
-		box-sizing: border-box;
-	}
-	.UserName {
-		margin-left: 15px;
-	}
-	.UserItem img {
-		width: 40px;
-		height: 40px;
-		border-radius: 10px;
-		object-fit: cover;
-	}
-	.UserItem.selected {
-		background-color: #e0e0e0;
-	}
-	.FooterWrapper {
-		bottom: 0;
-		width: 100%;
-		padding: 10px;
-		text-align: right;
-	}
-	.confirm {
-		padding: 10px 20px;
-		margin-right: 20px;
-		background-color: #fee500;
-		border: 1px solid #dcdcdc;
-		cursor: pointer;
-	}
-	.confirm.disabled {
-		background-color: #e2e2e2;
-		color: #969696;
-	}
-	.cancel {
-		padding: 10px 20px;
-		background-color: #fff;
-		border: 1px solid #dcdcdc;
-		cursor: pointer;
+
+		.HeaderWrapper {
+			width: 100%;
+			height: 50px;
+			font-size: 18px;
+			text-align: center;
+			border-bottom: 1px solid #dcdcdc;
+		}
+
+		.ContentWrapper {
+			width: 100%;
+		}
+
+		.UserItem {
+			display: flex;
+			align-items: center;
+			padding: 15px;
+			font-size: 18px;
+			cursor: pointer;
+			border: none;
+			background: none;
+			border-bottom: 1px solid #f0f0f0;
+			text-align: left;
+			width: 100%;
+			box-sizing: border-box;
+
+			&.selected {
+				background-color: #e0e0e0;
+			}
+
+			img {
+				width: 40px;
+				height: 40px;
+				border-radius: 10px;
+				object-fit: cover;
+			}
+
+			.UserName {
+				margin-left: 15px;
+			}
+		}
+
+		.FooterWrapper {
+			bottom: 0;
+			width: 100%;
+			padding: 10px;
+			text-align: right;
+
+			.confirm {
+				padding: 10px 20px;
+				margin-right: 20px;
+				background-color: #fee500;
+				border: 1px solid #dcdcdc;
+				cursor: pointer;
+
+				&.disabled {
+					background-color: #e2e2e2;
+					color: #969696;
+				}
+			}
+
+			.cancel {
+				padding: 10px 20px;
+				background-color: #fff;
+				border: 1px solid #dcdcdc;
+				cursor: pointer;
+			}
+		}
 	}
 </style>

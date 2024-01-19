@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { authService } from '$lib/services/AuthService';
 	import { goto } from '$app/navigation';
-	import './signup.css';
+	import './signup.scss';
 
 	let email = '';
 	let password = '';
 	let confirmPassword = '';
 	let username = '';
 	let isPasswordMatch = true;
+	let errorMessage = ''; // 에러 메시지를 위한 변수
 
 	$: isFormValid =
 		email.length > 0 &&
@@ -18,17 +19,31 @@
 
 	$: isPasswordMatch = password === confirmPassword;
 
-	// 폼 제출을 처리하는 함수
+	function isValidEmail(email: string) {
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+		return emailRegex.test(email);
+	}
+
 	async function handleSignup() {
-		if (!isFormValid) return; // 유효성 검사
+		errorMessage = ''; // 에러 메시지 초기화
+		if (!isFormValid) return;
+
+		if (!isValidEmail(email)) {
+			errorMessage = '유효하지 않은 이메일 형식입니다.';
+			return;
+		}
 
 		try {
 			const user = await authService.signup(username, email, password);
-			// 회원가입 성공 후 처리 로직, 예: 로그인 페이지로 리디렉션
-			goto('/');
+			goto('/'); // 회원가입 성공 후 처리 로직
 		} catch (error) {
 			console.error('Signup failed', error);
-			// 오류 처리 로직
+			// 오류가 Error 인스턴스인 경우에만 메시지 사용
+			if (error instanceof Error) {
+				errorMessage = error.message || '회원가입 중 오류가 발생했습니다.';
+			} else {
+				errorMessage = '회원가입 중 알 수 없는 오류가 발생했습니다.';
+			}
 		}
 	}
 </script>
@@ -49,9 +64,14 @@
 					bind:value={confirmPassword}
 				/>
 				<input type="text" placeholder="이름" maxLength="30" bind:value={username} />
+
 				{#if !isPasswordMatch}
 					<p>비밀번호가 일치하지 않습니다.</p>
 				{/if}
+				{#if errorMessage}
+					<p class="error-message">{errorMessage}</p>
+				{/if}
+
 				<button class={!isFormValid ? 'disabled' : ''} disabled={!isFormValid}>가입하기</button>
 			</form>
 		</div>

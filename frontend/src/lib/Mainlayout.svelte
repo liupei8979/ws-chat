@@ -114,7 +114,7 @@
 </body>
 <slot />
 
-<style>
+<style lang="scss">
 	.Sidebar {
 		position: fixed;
 		top: 0;
@@ -124,47 +124,48 @@
 		min-height: 100vh;
 		background: #dfdfdf;
 		padding-top: 20px;
-		z-index: 2;
-	}
-	.menuBtn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
+		z-index: 10000;
 
-	.menuBtn i {
-		padding: 20px;
-		font-size: 40px;
-		cursor: pointer;
-	}
+		.menuBtn {
+			display: flex;
+			align-items: center;
+			justify-content: center;
 
-	.menuBtn i:hover {
-		color: #888777;
-	}
+			i {
+				padding: 20px;
+				font-size: 40px;
+				cursor: pointer;
+				&:hover {
+					color: #888777;
+				}
+			}
 
-	.activeIcon {
-		color: black;
-	}
+			.activeIcon {
+				color: black;
+			}
 
-	.Icon {
-		color: #a6a7a8;
-	}
+			.Icon {
+				color: #a6a7a8;
+			}
+		}
 
-	.iconContainer {
-		position: relative;
-		display: flex;
-		align-items: center;
-	}
-	.unreadMessages {
-		position: absolute;
-		top: 15px;
-		right: 0;
-		background-color: red;
-		color: white;
-		font-size: 15px;
-		padding: 4px 10px;
-		border-radius: 10px;
-		min-width: 16px;
-		text-align: center;
+		.iconContainer {
+			position: relative;
+			display: flex;
+			align-items: center;
+
+			.unreadMessages {
+				position: absolute;
+				top: 15px;
+				right: 0;
+				background-color: red;
+				color: white;
+				font-size: 15px;
+				padding: 4px 10px;
+				border-radius: 10px;
+				min-width: 16px;
+				text-align: center;
+			}
+		}
 	}
 </style>

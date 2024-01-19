@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { authService } from '$lib/services/AuthService';
 	import { goto } from '$app/navigation';
-	import './login.css';
+	import './login.scss';
 
 	let email = '';
 	let password = '';
@@ -11,12 +11,15 @@
 	async function handleLogin() {
 		try {
 			const token = await authService.login(email, password);
-			sessionStorage.setItem('token', token); // 세션 스토리지에 토큰 저장
-			// 로그인 성공 후 처리, 예: 홈페이지로 리디렉션
+			sessionStorage.setItem('token', token);
 			window.location.href = '/friends';
 		} catch (error) {
 			console.error('Login failed', error);
-			// 로그인 실패 시 처리 로직
+			if (error instanceof Error) {
+				alert(error.message); // 서버에서 받은 오류 메시지를 표시
+			} else {
+				alert('로그인 중 알 수 없는 오류가 발생했습니다.');
+			}
 		}
 	}
 </script>

@@ -7,7 +7,7 @@
 	import NewChattingModal from '$lib/components/modal/NewChattingModal.svelte';
 	import { chatSession } from '$lib/stores/ChatStore';
 	import type { CreateRoomResponse, ChatRoom } from './index';
-	import './chat.css';
+	import './chat.scss';
 
 	let socket: Socket | null = null;
 	let isChattingWindowOpen = false;
@@ -140,36 +140,38 @@
 </script>
 
 <Mainlayout>
-	<div class="MainHeader">
-		<div class="TitleBlock">
-			<h2>채팅</h2>
-			<button class="icon-button" on:click={openChattingWindow} aria-label="새로운 채팅">
-				<i class="fas fa-comment-medical" title="새로운 채팅"></i>
-			</button>
+	<div class="Container">
+		<div class="MainHeader">
+			<div class="TitleBlock">
+				<h2>채팅</h2>
+				<button class="icon-button" on:click={openChattingWindow} aria-label="새로운 채팅">
+					<i class="fas fa-comment-medical" title="새로운 채팅"></i>
+				</button>
+			</div>
+			<input placeholder="채팅방 이름, 참여자 검색" bind:value={searchQuery} />
+			{#if isChattingWindowOpen}
+				<NewChattingModal on:confirm={handleConfirmUser} on:close={handleCloseChattingWindow} />
+			{/if}
 		</div>
-		<input placeholder="채팅방 이름, 참여자 검색" bind:value={searchQuery} />
-		{#if isChattingWindowOpen}
-			<NewChattingModal on:confirm={handleConfirmUser} on:close={handleCloseChattingWindow} />
-		{/if}
-	</div>
-	<div class="MainContent">
-		{#each filteredChatRooms as chatRoom}
-			<button class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
-				<img
-					src={chatRoom.imgSrc || '../../src/asset/img/base_profile.jpg'}
-					alt={chatRoom.name || 'Profile Image'}
-				/>
-				<p class="room-block-top">
-					<b>{chatRoom.title}</b>
-					<span>{chatRoom.date}</span>
-					{#if chatRoom.unreadMessages > 0}
-						<span class="unread-messages">{chatRoom.unreadMessages}</span>
-					{/if}
-				</p>
-				<p class="preview">
-					{chatRoom.preview}
-				</p>
-			</button>
-		{/each}
+		<div class="MainContent">
+			{#each filteredChatRooms as chatRoom}
+				<button class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
+					<img
+						src={chatRoom.imgSrc || '../../src/asset/img/base_profile.jpg'}
+						alt={chatRoom.name || 'Profile Image'}
+					/>
+					<p class="room-block-top">
+						<b>{chatRoom.title}</b>
+						<span>{chatRoom.date}</span>
+						{#if chatRoom.unreadMessages > 0}
+							<span class="unread-messages">{chatRoom.unreadMessages}</span>
+						{/if}
+					</p>
+					<p class="preview">
+						{chatRoom.preview}
+					</p>
+				</button>
+			{/each}
+		</div>
 	</div>
 </Mainlayout>
