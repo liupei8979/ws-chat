@@ -1,5 +1,5 @@
 import { Message } from '@just-chat/types'
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator'
+import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator'
 
 export class RoomInfoDto {
   @IsString()
@@ -19,6 +19,10 @@ export class RoomInfoDto {
   recentMsgSeq: number
 
   recentUserRead: { [userId: string]: number }
+
+  @IsBoolean()
+  @IsNotEmpty()
+  isFriend: boolean
 }
 
 export class Member {

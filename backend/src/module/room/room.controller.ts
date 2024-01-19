@@ -21,8 +21,13 @@ export class RoomController {
   @Get('/:roomId')
   async getRoomInfo(@Req() req, @Res() res, @Query() data: any) {
     let { page } = data
+    const userId = req.user.email
     if (!page) page = 0
-    const roomInfo = await this.roomService.getRoomInfo(req.params.roomId, page)
+    const roomInfo = await this.roomService.getRoomInfo(
+      userId,
+      req.params.roomId,
+      page,
+    )
     const response: ApiResponse<RoomInfoDto> = {
       success: true,
       statusCode: 200,

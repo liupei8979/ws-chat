@@ -24,7 +24,11 @@ export class RoomService {
     private usersCollection: CollectionReference<UserDocument>,
   ) {}
 
-  async getRoomInfo(roomId: string, pagination: number): Promise<RoomInfoDto> {
+  async getRoomInfo(
+    userId: string,
+    roomId: string,
+    pagination: number,
+  ): Promise<RoomInfoDto> {
     this.logger.log(`getRoomInfo: ${roomId}`)
     const roomRef = this.roomCollection.doc(roomId)
     const roomSnapshot = await roomRef.get()
@@ -77,6 +81,14 @@ export class RoomService {
       username: memberName[index],
     }))
 
+    const receiverId = membersWithNames.find(
+      (member) => member.userId !== userId,
+    )?.userId
+
+    const userDoc = await this.usersCollection.doc(userId).get()
+    const isFriend = userDoc?.data().friends.includes(receiverId)
+    // this.logger.log(isFriend);
+
     const result: RoomInfoDto = {
       roomId: roomSnapshot.data()?.roomId,
       title: roomSnapshot.data()?.title,
@@ -84,6 +96,7 @@ export class RoomService {
       recentMsgSeq: recentSeq,
       messages: messagesData,
       recentUserRead: roomSnapshot.data()?.recentUserRead,
+      isFriend: isFriend,
     }
 
     return result

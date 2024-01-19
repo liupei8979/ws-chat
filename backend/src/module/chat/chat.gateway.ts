@@ -191,7 +191,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         roomId: roomId,
       },
     }
-    clients.map((clientId) => {
+    clients?.map((clientId) => {
       this.server.to(clientId).emit('readRoomResponse', response)
     })
   }

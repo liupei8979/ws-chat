@@ -300,6 +300,7 @@ paths:
                           timestamp: 1625217395000
                           roomId: 'exampleRoomId'
                       recentUserRead: { 'user1': 120, 'user2': 123 }
+                      isFriend: true
         '404':
           description: 해당 채팅방이 존재하지 않습니다.
           content:
