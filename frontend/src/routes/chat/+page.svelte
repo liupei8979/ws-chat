@@ -9,16 +9,19 @@
 	import type { CreateRoomResponse, ChatRoom } from './index';
 	import './chat.scss';
 
+	// Socket 연결 및 채팅 관련 상태 변수 선언
 	let socket: Socket | null = null;
 	let isChattingWindowOpen = false;
 	let searchQuery = ''; // 검색어 상태 변수
 	let userId: string;
 	let chatRooms: ChatRoom[] = [];
 
+	// Socket 스토어 구독
 	socketStore.subscribe((value) => {
 		socket = value;
 	});
 
+	// 페이지 업데이트 전 사용자 프로필 정보를 세션 스토리지에서 불러오기
 	beforeUpdate(() => {
 		const userProfileString = sessionStorage.getItem('userProfile');
 
@@ -27,6 +30,7 @@
 		}
 	});
 
+	// 컴포넌트 마운트 시 채팅방 데이터 불러오기
 	onMount(() => {
 		if (socket) {
 			socket.on('updateChatLobbyStatus', (data) => {
@@ -40,6 +44,7 @@
 		loadChatRooms();
 	});
 
+	// 채팅방 데이터를 로컬 상태로 불러오는 함수
 	function loadChatRooms() {
 		if (typeof window !== 'undefined') {
 			const userChatDataString = sessionStorage.getItem('userChatData');

@@ -10,11 +10,8 @@
 	import { chatSession } from '$lib/stores/ChatStore';
 	import { v4 } from 'uuid';
 
+	// Socket 연결 및 채팅 관련 상태 변수 선언
 	let socket: Socket | null = null;
-
-	socketStore.subscribe((value) => {
-		socket = value;
-	});
 	let isSending = false; // 메시지 전송 중인지 확인하는 플래그
 	let title: string = get(chatSession).title;
 	let userId: string = get(chatSession).userId;
@@ -25,6 +22,12 @@
 	let chatContainer: HTMLElement | null = null;
 	let recentUserRead = 0;
 
+	// Socket 스토어 구독
+	socketStore.subscribe((value) => {
+		socket = value;
+	});
+
+	// 컴포넌트 마운트 시 채팅방 메시지 로딩 및 소켓 이벤트 설정
 	onMount(() => {
 		fetchRoomMessages();
 		if (socket) {
@@ -47,6 +50,7 @@
 		}
 	});
 
+	// 채팅방 메시지를 로드하는 함수
 	async function fetchRoomMessages() {
 		const token = sessionStorage.getItem('token');
 		if (!token) {
@@ -85,6 +89,7 @@
 		}
 	}
 
+	// 메시지 전송 함수
 	function sendMessage() {
 		const msgId = v4();
 		if (socket && !isSending) {
@@ -116,11 +121,12 @@
 		}
 	}
 
-	// Use the Message type for the parameter
+	// 메시지가 현재 사용자에 의해 전송되었는지 확인하는 함수
 	function isSentByCurrentUser(message: Message) {
 		return message.senderId === userId;
 	}
 
+	// 채팅 컨테이너의 스크롤을 최신 메시지 위치로 업데이트하는 함수
 	function updateScroll() {
 		if (chatContainer) {
 			chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -129,6 +135,8 @@
 	function goBack() {
 		history.back();
 	}
+
+	// 키보드 이벤트 처리 함수
 	function handleKeyDown(event: KeyboardEvent) {
 		if (event.key === 'Enter' && !event.shiftKey) {
 			event.preventDefault(); // Shift 키가 없이 Enter 키만 눌렸을 때 기본 동작 방지
@@ -138,6 +146,7 @@
 			}
 		}
 	}
+	// 메시지 전송을 위한 폼 제출 이벤트 처리 함수
 	function handleSubmit(event: Event) {
 		event.preventDefault(); // 폼 제출 기본 동작 방지
 		if (messageContent.trim() !== '') {
@@ -146,6 +155,7 @@
 		}
 	}
 
+	// 메시지가 업데이트될 때마다 스크롤 업데이트
 	$: if (messages.length > 0) {
 		setTimeout(updateScroll, 0); // 비동기적으로 스크롤 업데이트 호출
 	}
