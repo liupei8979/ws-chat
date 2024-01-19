@@ -22,6 +22,7 @@
 	let roomId: string = $page.params.slug;
 	let chatContainer: HTMLElement | null = null;
 	let recentUserRead = 0;
+	let showAddFriend = false; 
 
 	// Socket 스토어 구독
 	socketStore.subscribe((value) => {
@@ -53,7 +54,32 @@
 				}
 			});
 		}
+		setReceiverIdFromChatData();
+		checkIfReceiverIsFriend();
 	});
+
+	function setReceiverIdFromChatData() {
+    const chatDataString = sessionStorage.getItem('userChatData');
+    if (chatDataString) {
+        const chatData = JSON.parse(chatDataString);
+        const currentRoom = chatData.payload.rooms.find(room => room.roomId === roomId);
+        if (currentRoom) {
+            // 현재 사용자(userId)와 다른 ID를 receiverId로 설정
+            receiverId = currentRoom.recentMsg.senderId === chatData.payload.userId ? 
+                         currentRoom.recentMsg.receiverId : 
+                         currentRoom.recentMsg.senderId;
+        }
+    }
+}
+
+// receiverId가 현재 사용자의 친구 목록에 있는지 확인하는 함수
+function checkIfReceiverIsFriend() {
+    const userProfileString = sessionStorage.getItem('userProfile');
+    if (userProfileString) {
+        const userProfile = JSON.parse(userProfileString);
+        showAddFriend = !userProfile.friends.some(friend => friend.email === receiverId);
+    }
+}
 
 	// 채팅방 메시지를 로드하는 함수
 	async function fetchRoomMessages() {
@@ -176,6 +202,10 @@
 			<i class="fas fa-arrow-left" />
 		</button>
 		<span>{title}</span>
+		{#if showAddFriend}
+        <!-- '친구 추가' 버튼을 조건적으로 표시 -->
+        <button type="button" >친구 추가</button>
+    {/if}
 	</div>
 
 	<div class="Chatting" bind:this={chatContainer}>
