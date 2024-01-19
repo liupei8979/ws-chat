@@ -73,6 +73,12 @@
 			margin-left: 8px;
 			border-bottom-left-radius: 3px;
 		}
+		.message-info {
+			position: relative; // 새로운 래퍼에 대한 상대적 위치 지정
+			order: 1; // Flex order 조정
+			margin-top: 50px;
+			left: 57px;
+		}
 	}
 
 	.message-info {
