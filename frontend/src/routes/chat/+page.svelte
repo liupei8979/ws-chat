@@ -116,12 +116,11 @@
 		if (userChatDataString) {
 			const userChatData = JSON.parse(userChatDataString);
 			const room = userChatData.payload.rooms.find((room: any) => room.roomId === roomId);
-
 			if (room) {
 				chatSession.set({
 					title: room.title,
 					userId: userId,
-					receiverId: room.recentMsg.receiverId,
+					receiverId: room.recentMsg.userId,
 					roomId: roomId,
 					messages: [] // 필요에 따라 초기 메시지 설정
 				});

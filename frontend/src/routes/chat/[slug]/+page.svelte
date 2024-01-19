@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Message } from '@just-chat/types';
+	import type { Member } from './index';
 	import { goto } from '$app/navigation';
 	import './chattingRoom.scss';
 	import { onMount } from 'svelte';
@@ -22,6 +23,7 @@
 	let chatContainer: HTMLElement | null = null;
 	let recentUserRead = 0;
 
+
 	// Socket 스토어 구독
 	socketStore.subscribe((value) => {
 		socket = value;
@@ -29,65 +31,75 @@
 
 	// 컴포넌트 마운트 시 채팅방 메시지 로딩 및 소켓 이벤트 설정
 	onMount(() => {
-		fetchRoomMessages();
-		if (socket) {
-			socket.emit('readRoom', { userId, roomId });
-			socket.on('receiveMessage', (response) => {
-				if (response.success && response.payload.timestamp) {
-					const newMessage = {
-						...response.payload,
-						timestamp: new Date(response.payload.timestamp)
-					};
-					messages = [...messages, newMessage];
-				}
-				socket?.emit('readRoom', { userId, roomId });
-			});
-			socket.on('readRoomResponse', async (response) => {
-				if (response.success) {
-					await fetchRoomMessages();
-				}
-			});
-		}
-	});
+    fetchRoomMessages();
+    if (socket) {
+        // 'readRoom' 요청을 보낼 때 'receiverId'를 사용하여 요청
+        socket.emit('readRoom', { userId, roomId });
+
+        socket.on('receiveMessage', (response) => {
+            if (response.success && response.payload.timestamp) {
+                const newMessage = {
+                    ...response.payload,
+                    timestamp: new Date(response.payload.timestamp)
+                };
+                messages = [...messages, newMessage];
+            }
+            // 여기서도 'userId' 대신 'receiverId'를 사용해야 하는지 확인 필요
+            socket?.emit('readRoom', { userId, roomId });
+        });
+
+        socket.on('readRoomResponse', async (response) => {
+            if (response.success) {
+                await fetchRoomMessages();
+            }
+        });
+    }
+});
+
 
 	// 채팅방 메시지를 로드하는 함수
 	async function fetchRoomMessages() {
-		const token = sessionStorage.getItem('token');
-		if (!token) {
-			console.error('No token found');
-			return;
-		}
+    const token = sessionStorage.getItem('token');
+    if (!token) {
+        console.error('No token found');
+        return;
+    }
 
-		try {
-			const response = await fetch(
-				`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/room/${roomId}?page=0`,
-				{
-					method: 'GET',
-					headers: {
-						Authorization: `Bearer ${token}`
-					}
-				}
-			);
+    try {
+        const response = await fetch(
+            `${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/room/${roomId}?page=0`,
+            {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
 
-			if (!response.ok) {
-				throw new Error('Failed to fetch room messages');
-			}
+        if (!response.ok) {
+            throw new Error('Failed to fetch room messages');
+        }
 
-			const data = await response.json();
-			if (data.success) {
-				messages = data.data.messages.reverse().map((msg: Message) => ({
-					...msg,
-					timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
-				}));
-				recentUserRead = data.data.recentUserRead[receiverId];
-				console.log(recentUserRead);
-			} else {
-				console.error('Failed to fetch room messages: ', data.message);
-			}
-		} catch (error) {
-			console.error('Error fetching room messages:', error);
-		}
-	}
+        const data = await response.json();
+        if (data.success) {
+            // members 배열에서 현재 사용자가 아닌 다른 참가자의 userId 추출
+            const otherMember = data.data.members.find((member: Member) => member.userId !== userId);
+            receiverId = otherMember ? otherMember.userId : null;
+
+            messages = data.data.messages.reverse().map((msg: Message) => ({
+                ...msg,
+                timestamp: msg.timestamp ? new Date(msg.timestamp) : new Date()
+            }));
+            recentUserRead = data.data.recentUserRead[receiverId];
+            console.log(recentUserRead);
+        } else {
+            console.error('Failed to fetch room messages: ', data.message);
+        }
+    } catch (error) {
+        console.error('Error fetching room messages:', error);
+    }
+}
+
 
 	// 메시지 전송 함수
 	function sendMessage() {
@@ -168,6 +180,7 @@
 		</button>
 		<span>{title}</span>
 	</div>
+	
 	<div class="Chatting" bind:this={chatContainer}>
 		{#each messages as message (message.msgId)}
 			<div class="Message {isSentByCurrentUser(message) ? 'sent' : 'received'}">
