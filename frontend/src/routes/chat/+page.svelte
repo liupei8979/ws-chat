@@ -9,7 +9,7 @@
 	import type { CreateRoomResponse, ChatRoom } from './index';
 	import './chat.scss';
 
-	  // Socket 연결 및 채팅 관련 상태 변수 선언
+	// Socket 연결 및 채팅 관련 상태 변수 선언
 	let socket: Socket | null = null;
 	let isChattingWindowOpen = false;
 	let searchQuery = ''; // 검색어 상태 변수
@@ -30,7 +30,7 @@
 		}
 	});
 
- 	// 컴포넌트 마운트 시 채팅방 데이터 불러오기
+	// 컴포넌트 마운트 시 채팅방 데이터 불러오기
 	onMount(() => {
 		if (socket) {
 			socket.on('updateChatLobbyStatus', (data) => {
@@ -44,7 +44,7 @@
 		loadChatRooms();
 	});
 
-	 // 채팅방 데이터를 로컬 상태로 불러오는 함수
+	// 채팅방 데이터를 로컬 상태로 불러오는 함수
 	function loadChatRooms() {
 		if (typeof window !== 'undefined') {
 			const userChatDataString = sessionStorage.getItem('userChatData');

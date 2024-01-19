@@ -10,7 +10,6 @@
 	import { chatSession } from '$lib/stores/ChatStore';
 	import { v4 } from 'uuid';
 
-
 	// Socket 연결 및 채팅 관련 상태 변수 선언
 	let socket: Socket | null = null;
 	let isSending = false; // 메시지 전송 중인지 확인하는 플래그
@@ -23,7 +22,7 @@
 	let chatContainer: HTMLElement | null = null;
 	let recentUserRead = 0;
 
-    // Socket 스토어 구독
+	// Socket 스토어 구독
 	socketStore.subscribe((value) => {
 		socket = value;
 	});
@@ -122,7 +121,7 @@
 		}
 	}
 
-	 // 메시지가 현재 사용자에 의해 전송되었는지 확인하는 함수
+	// 메시지가 현재 사용자에 의해 전송되었는지 확인하는 함수
 	function isSentByCurrentUser(message: Message) {
 		return message.senderId === userId;
 	}
@@ -137,7 +136,7 @@
 		history.back();
 	}
 
-    // 키보드 이벤트 처리 함수
+	// 키보드 이벤트 처리 함수
 	function handleKeyDown(event: KeyboardEvent) {
 		if (event.key === 'Enter' && !event.shiftKey) {
 			event.preventDefault(); // Shift 키가 없이 Enter 키만 눌렸을 때 기본 동작 방지
