@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { totalUnreadStore } from '$lib/stores/totalUnreadStore';
 	import { onMount, beforeUpdate, setContext } from 'svelte';
 	import { socketStore } from '$lib/stores/socketStore';
 	import io, { Socket } from 'socket.io-client';
 
 	let pathname = '';
-	let socket: Socket;
 	let totalUnread = 0;
+	$: totalUnread = $totalUnreadStore;
 	const btns = [
 		{
 			title: 'friends',
@@ -47,39 +48,9 @@
 		location.href = route;
 	}
 
-	beforeUpdate(() => {
+	onMount(() => {
 		pathname = window.location.pathname;
-		const userChatDataString = sessionStorage.getItem('userChatData');
-		if (userChatDataString) {
-			const userChatData = JSON.parse(userChatDataString);
-			totalUnread = userChatData.payload.totalUnread || 0;
-		}
 		console.log('Current URL:', pathname);
-		if (typeof window !== 'undefined' && sessionStorage.getItem('token')) {
-			const accessToken = sessionStorage.getItem('token');
-			const userProfileString = sessionStorage.getItem('userProfile');
-			if (userProfileString) {
-				const userProfile = JSON.parse(userProfileString);
-
-				socket = io(`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_WS_PORT}/chat`, {
-					transports: ['websocket'],
-					query: {
-						accessToken: `Bearer ${accessToken}`
-					}
-				});
-				console.log(socket);
-
-				socket.on('connect', () => {
-					console.log('Connected to the chat server', socket.id);
-					socket.on('updateChatLobbyStatus', (data) => {
-						console.log('User Chat Data:', data);
-						sessionStorage.setItem('userChatData', JSON.stringify(data));
-						totalUnread = data.payload.totalUnread || 0; // 여기에서 totalUnread 업데이트
-					});
-				});
-				socketStore.set(socket);
-			}
-		}
 	});
 </script>
 

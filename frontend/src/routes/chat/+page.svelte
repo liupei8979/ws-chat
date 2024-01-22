@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { totalUnreadStore } from '$lib/stores/totalUnreadStore';
+	import { chatRoomsStore } from '$lib/stores/chatRoomsStore';
 	import { onMount, beforeUpdate } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { socketStore } from '$lib/stores/socketStore';
@@ -37,6 +39,7 @@
 				// 서버로부터 받은 데이터 처리
 				console.log('User Chat:', data);
 				sessionStorage.setItem('userChatData', JSON.stringify(data));
+				totalUnreadStore.set(data.payload.totalUnread || 0);
 				updateChatRooms(data);
 			});
 		}
@@ -138,7 +141,11 @@
 		isChattingWindowOpen = false;
 	}
 
-	$: filteredChatRooms = chatRooms.filter((room) =>
+	// $: filteredChatRooms = chatRooms.filter((room) =>
+	// 	room.title.toLowerCase().includes(searchQuery.toLowerCase())
+	// );
+
+	$: chatRooms = $chatRoomsStore.filter((room: any) =>
 		room.title.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 </script>
@@ -157,7 +164,7 @@
 		{/if}
 	</div>
 	<div class="MainContent">
-		{#each filteredChatRooms as chatRoom}
+		{#each chatRooms as chatRoom}
 			<button class="chat-room-item" on:click={() => navigateToRoom(chatRoom.roomId)}>
 				<img src={chatRoom.imgSrc || '../../src/asset/img/base_profile.jpg'} alt={chatRoom.name} />
 				<p class="room-block-top">

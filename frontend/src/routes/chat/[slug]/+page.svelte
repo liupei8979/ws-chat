@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { chatRoomsStore } from '$lib/stores/chatRoomsStore';
+	import { totalUnreadStore } from '$lib/stores/totalUnreadStore';
 	import type { Message } from '@just-chat/types';
 	import type { Member, Room, Friend } from './index';
 	import { goto } from '$app/navigation';
@@ -53,6 +55,27 @@
 				if (response.success) {
 					await fetchRoomMessages();
 				}
+			});
+			socket.on('updateChatLobbyStatus', (data) => {
+				// 서버로부터 받은 데이터 처리
+				console.log('User Chat:', data);
+				sessionStorage.setItem('userChatData', JSON.stringify(data));
+				totalUnreadStore.set(data.payload.totalUnread || 0);
+				console.log(data.payload);
+				const updatedRooms = data.payload.rooms.map((room: any) => ({
+					roomId: room.roomId,
+					title: room.title,
+					recentMsg: {
+						msgId: room.recentMsg.msgId,
+						content: room.recentMsg.content,
+						timestamp: room.recentMsg.timestamp
+					},
+					userUnread: room.userUnread
+				}));
+				chatRoomsStore.set(updatedRooms);
+
+				// 업데이트된 chatRoomsStore 내용 콘솔에 출력
+				console.log('Updated chatRoomsStore:', get(chatRoomsStore));
 			});
 		}
 		setReceiverIdFromChatData();
