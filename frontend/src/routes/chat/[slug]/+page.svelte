@@ -57,6 +57,11 @@
 		}
 		setReceiverIdFromChatData();
 		checkIfReceiverIsFriend();
+		const temporaryTitle = localStorage.getItem('temporaryTitle');
+		if (temporaryTitle) {
+			title = temporaryTitle;
+			localStorage.removeItem('temporaryTitle'); // 사용 후 삭제
+		}
 	});
 
 	function setReceiverIdFromChatData() {
@@ -108,7 +113,7 @@
 
 			const data = await response.json();
 			if (data.success) {
-				console.log('chat',data)
+				console.log('chat', data);
 				// members 배열에서 현재 사용자가 아닌 다른 참가자의 userId 추출
 				const otherMember = data.data.members.find((member: Member) => member.userId !== userId);
 				receiverId = otherMember ? otherMember.userId : null;
@@ -127,49 +132,47 @@
 		}
 	}
 	async function addFriend() {
-    const accessToken = sessionStorage.getItem('token');
-    if (!accessToken) {
-        console.error('No access token found');
-        return;
-    }
+		const accessToken = sessionStorage.getItem('token');
+		if (!accessToken) {
+			console.error('No access token found');
+			return;
+		}
 
-    try {
-        const response = await fetch(
-            `${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/user/friend`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`
-                },
-                body: JSON.stringify({ email: receiverId })
-            }
-        );
+		try {
+			const response = await fetch(
+				`${import.meta.env.VITE_HOST_URL}:${import.meta.env.VITE_HOST_PORT}/user/friend`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${accessToken}`
+					},
+					body: JSON.stringify({ email: receiverId })
+				}
+			);
 
-        if (!response.ok) {
-            throw new Error('Failed to add friend');
-        }
+			if (!response.ok) {
+				throw new Error('Failed to add friend');
+			}
 
-        const data = await response.json();
-        if (data.success) {
-            console.log('Friend added successfully:', data);
-            // chatSession 스토어 업데이트
-            chatSession.set({ title, userId, receiverId, roomId });
+			const data = await response.json();
+			if (data.success) {
+				console.log('Friend added successfully:', data);
 
-            // 1초 후 해당 룸 ID로 리디렉션
-            setTimeout(() => {
-                window.location.href = `${roomId}`;
-            }, 1000);
-        } else {
-            console.error('Failed to add friend:', data.message);
-            // 오류 처리 로직
-        }
-    } catch (error) {
-        console.error('Error adding friend:', error);
-    }
-}
+				// 로컬 스토리지에 title 저장
+				localStorage.setItem('temporaryTitle', title);
 
-
+				// 1초 후 해당 룸 ID로 리디렉션
+				setTimeout(() => {
+					window.location.href = `${roomId}`;
+				}, 1000);
+			} else {
+				console.error('Failed to add friend:', data.message);
+			}
+		} catch (error) {
+			console.error('Error adding friend:', error);
+		}
+	}
 
 	// 메시지 전송 함수
 	function sendMessage() {
@@ -250,11 +253,10 @@
 		</button>
 		<span>{title}</span>
 		{#if showAddFriend}
-		<button type="button" on:click={addFriend}>
-			<i class="fas fa-user-plus" /><!-- 친구 추가 아이콘 -->
-		</button>
-	{/if}
-
+			<button type="button" on:click={addFriend}>
+				<i class="fas fa-user-plus" /><!-- 친구 추가 아이콘 -->
+			</button>
+		{/if}
 	</div>
 
 	<div class="Chatting" bind:this={chatContainer}>
