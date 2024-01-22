@@ -104,39 +104,37 @@
 		: friendList;
 </script>
 
-<Mainlayout>
-	<div class="Container">
-		<div class="MainHeader">
-			<div class="TitleBlock">
-				<h2>친구</h2>
-				<button class="icon-button" title="친구 추가" on:click={openFindFriendModal}>
-					<i class="fas fa-user-plus"></i>
-				</button>
-			</div>
-			<input placeholder="이름 검색" bind:value={$searchQuery} />
-		</div>
-	</div>
-	<div class="MainContent">
-		<button class="MyProfileBlock" on:click={openMyProfileModal}>
-			<img
-				src={userProfile.imgSrc || '../../src/asset/img/base_profile.jpg'}
-				alt={userProfile.username}
-			/>
-			<p><b>{userProfile.username}</b></p>
-			<p>{userProfile.statusMessage || '.'}</p>
-		</button>
-		<div class="FriendsBorder">
-			<p>친구 {filteredFriendList.length}</p>
-		</div>
-		{#each filteredFriendList as friend (friend.email)}
-			<button class="MyProfileBlock" on:click={() => openFriendsProfileModal(friend)}>
-				<img src={'../../src/asset/img/base_profile.jpg'} alt={friend.username} />
-				<p><b>{friend.username}</b></p>
-				<p>{friend.statusMessage || '.'}</p>
+<div class="Container">
+	<div class="MainHeader">
+		<div class="TitleBlock">
+			<h2>친구</h2>
+			<button class="icon-button" title="친구 추가" on:click={openFindFriendModal}>
+				<i class="fas fa-user-plus"></i>
 			</button>
-		{/each}
+		</div>
+		<input placeholder="이름 검색" bind:value={$searchQuery} />
 	</div>
-</Mainlayout>
+</div>
+<div class="MainContent">
+	<button class="MyProfileBlock" on:click={openMyProfileModal}>
+		<img
+			src={userProfile.imgSrc || '../../src/asset/img/base_profile.jpg'}
+			alt={userProfile.username}
+		/>
+		<p><b>{userProfile.username}</b></p>
+		<p>{userProfile.statusMessage || '.'}</p>
+	</button>
+	<div class="FriendsBorder">
+		<p>친구 {filteredFriendList.length}</p>
+	</div>
+	{#each filteredFriendList as friend (friend.email)}
+		<button class="MyProfileBlock" on:click={() => openFriendsProfileModal(friend)}>
+			<img src={'../../src/asset/img/base_profile.jpg'} alt={friend.username} />
+			<p><b>{friend.username}</b></p>
+			<p>{friend.statusMessage || '.'}</p>
+		</button>
+	{/each}
+</div>
 
 {#if $isFindFriendModalOpen}
 	<FindFriendModal onClose={closeFindFriendModal} />

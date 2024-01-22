@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Message } from '@just-chat/types';
-	import type { Member } from './index';
+	import type { Member, Room, Friend } from './index';
 	import { goto } from '$app/navigation';
 	import './chattingRoom.scss';
 	import { onMount } from 'svelte';
@@ -68,7 +68,7 @@
 		const chatDataString = sessionStorage.getItem('userChatData');
 		if (chatDataString) {
 			const chatData = JSON.parse(chatDataString);
-			const currentRoom = chatData.payload.rooms.find((room) => room.roomId === roomId);
+			const currentRoom = chatData.payload.rooms.find((room: Room) => room.roomId === roomId);
 			if (currentRoom) {
 				// 현재 사용자(userId)와 다른 ID를 receiverId로 설정
 				receiverId =
@@ -84,7 +84,7 @@
 		const userProfileString = sessionStorage.getItem('userProfile');
 		if (userProfileString) {
 			const userProfile = JSON.parse(userProfileString);
-			showAddFriend = !userProfile.friends.some((friend) => friend.email === receiverId);
+			showAddFriend = !userProfile.friends.some((friend: Friend) => friend.email === receiverId);
 		}
 	}
 

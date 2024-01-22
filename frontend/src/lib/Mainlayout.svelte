@@ -49,6 +49,11 @@
 
 	beforeUpdate(() => {
 		pathname = window.location.pathname;
+		const userChatDataString = sessionStorage.getItem('userChatData');
+		if (userChatDataString) {
+			const userChatData = JSON.parse(userChatDataString);
+			totalUnread = userChatData.payload.totalUnread || 0;
+		}
 		console.log('Current URL:', pathname);
 		if (typeof window !== 'undefined' && sessionStorage.getItem('token')) {
 			const accessToken = sessionStorage.getItem('token');
@@ -74,11 +79,6 @@
 				});
 				socketStore.set(socket);
 			}
-		}
-		const userChatDataString = sessionStorage.getItem('userChatData');
-		if (userChatDataString) {
-			const userChatData = JSON.parse(userChatDataString);
-			totalUnread = userChatData.payload.totalUnread || 0;
 		}
 	});
 </script>
